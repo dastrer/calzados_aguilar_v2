@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('comprobante_path', 2048)->nullable();
             $table->enum('metodo_pago', ['EFECTIVO', 'TARJETA']);
             $table->dateTime('fecha_hora');
-            $table->decimal('impuesto')->unsigned();
-            $table->decimal('subtotal')->unsigned();
-            $table->decimal('total')->unsigned();
+            // $table->decimal('impuesto')->unsigned(); // ELIMINADO
+            // $table->decimal('subtotal')->unsigned(); // ELIMINADO
+            $table->decimal('total')->unsigned(); // El total ahora es la suma directa de los productos.
             $table->timestamps();
         });
     }

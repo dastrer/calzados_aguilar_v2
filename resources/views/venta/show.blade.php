@@ -88,7 +88,7 @@
                             {{$venta->subtotal}} {{$empresa->moneda->simbolo}}
                         </th>
                     </tr>
-                    <tr>
+                    <tr style="display: none;">
                         <th colspan="4">{{$empresa->abreviatura_impuesto}} ({{$empresa->porcentaje_impuesto}}%):</th>
                         <th>
                             {{$venta->impuesto}} {{$empresa->moneda->simbolo}}

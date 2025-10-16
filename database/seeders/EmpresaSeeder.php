@@ -17,8 +17,7 @@ class EmpresaSeeder extends Seeder
             'nombre' => 'CALZADOS AGUILAR',
             'propietario' => 'Lourdes Aguilar',
             'ruc' => '1089674538',
-            'porcentaje_impuesto' => '0',
-            'abreviatura_impuesto' => 'IVA',
+            // Se eliminan los campos 'porcentaje_impuesto' y 'abreviatura_impuesto'
             'direccion' => 'Av. Los Pinos n°1064',
             'moneda_id' => 1
         ]);

@@ -59,6 +59,8 @@ class compraController extends Controller
         $comprobantes = $comprobanteService->obtenerComprobantes();
         $productos = Producto::where('estado', 1)->get();
         $optionsMetodoPago = MetodoPagoEnum::cases();
+        
+        // CORRECCIÓN: La variable $empresa es necesaria para mostrar el símbolo de la moneda en la vista.
         $empresa = $this->empresaService->obtenerEmpresa();
 
         return view('compra.create', compact(
@@ -66,7 +68,7 @@ class compraController extends Controller
             'comprobantes',
             'productos',
             'optionsMetodoPago',
-            'empresa'
+            'empresa' // Se reintroduce la variable
         ));
     }
 
@@ -78,7 +80,8 @@ class compraController extends Controller
         DB::beginTransaction();
         try {
 
-            //Llenar tabla compras
+            // Llenar tabla compras
+            // NOTA: El subtotal e impuesto se limpian en StoreCompraRequest.php antes de este punto.
             $compra = new Compra();
             $request->merge([
                 'comprobante_path' => isset($request->file_comprobante)
@@ -87,7 +90,7 @@ class compraController extends Controller
             ]);
             $compra = Compra::create($request->all());
 
-            //Llenar tabla compra_producto
+            // Llenar tabla compra_producto
             //1.Recuperar los arrays
             $arrayProducto_id = $request->get('arrayidproducto');
             $arrayCantidad = $request->get('arraycantidad');
@@ -134,6 +137,8 @@ class compraController extends Controller
     public function show(Compra $compra): View
     {
         $empresa = $this->empresaService->obtenerEmpresa();
+        // NOTA: La variable $empresa aún se usa aquí, ya que puede ser necesaria para mostrar la moneda
+        // o información general de la empresa en el comprobante de compra.
         return view('compra.show', compact('compra', 'empresa'));
     }
 
@@ -159,11 +164,11 @@ class compraController extends Controller
     public function destroy(string $id)
     {
         /*
-        Compra::where('id', $id)
-            ->update([
-                'estado' => 0
-            ]);
+          Compra::where('id', $id)
+              ->update([
+                  'estado' => 0
+              ]);
 
-        return redirect()->route('compras.index')->with('success', 'Compra eliminada');*/
+          return redirect()->route('compras.index')->with('success', 'Compra eliminada');*/
     }
 }

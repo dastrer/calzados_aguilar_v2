@@ -63,8 +63,10 @@ class EmpresaController extends Controller
     public function update(UpdateEmpresaRequest $request, Empresa $empresa, EmpresaService $empresaService): RedirectResponse
     {
         try {
+            // El request ya debe venir limpio de los campos de impuesto
             $empresa->update($request->validated());
             $empresaService->limpiarCacheEmpresa();
+            // Asegurarse de que el ActivityLog también reciba los datos limpios
             ActivityLogService::log('Edición de empresa', 'Empresa', $request->validated());
             return redirect()->route('empresa.index')->with('success', 'Empresa editada');
         } catch (Throwable $e) {

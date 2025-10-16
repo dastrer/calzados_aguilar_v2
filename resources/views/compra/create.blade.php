@@ -190,8 +190,8 @@
                                                 <span>{{$empresa->moneda->simbolo}}</span>
                                             </th>
                                         </tr>
-                                        <tr>
-                                            <th colspan="4">{{$empresa->abreviatura_impuesto}} %</th>
+                                        <tr style="display: none;">
+                                            <th colspan="4">{{$empresa->abreviatura_impuesto}}</th>
                                             <th colspan="2">
                                                 <input type="hidden" name="impuesto" value="0" id="inputImpuesto">
                                                 <span id="igv">0</span>
@@ -333,7 +333,6 @@
         let textProducto = $('#producto_id option:selected').text();
         let cantidad = $('#cantidad').val();
         let precioCompra = $('#precio_compra').val();
-        // SE ELIMINA: let fechaVencimiento = $('#fecha_vencimiento').val();
 
         //Validaciones 
         //1.Para que los campos no esten vacíos (la fecha de vencimiento ya no se valida aquí)

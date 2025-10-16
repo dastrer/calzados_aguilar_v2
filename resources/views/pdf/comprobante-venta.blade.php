@@ -142,7 +142,7 @@
 
         <div class="datos">
             <div><strong>Subtotal:</strong> {{$venta->subtotal}} {{$empresa->moneda->simbolo}}</div>
-            <div><strong>{{$empresa->abreviatura_impuesto}}:</strong> {{$venta->impuesto}} {{$empresa->moneda->simbolo}}</div>
+            <div style="display: none;"><strong>{{$empresa->abreviatura_impuesto}}:</strong> {{$venta->impuesto}} {{$empresa->moneda->simbolo}}</div>
             <div><strong>Total:</strong> {{$venta->total}} {{$empresa->moneda->simbolo}}</div>
             <div><strong>Modalidad de Pago:</strong> {{$venta->metodo_pago}}</div>
             <div><strong>Cajero:</strong> {{$venta->user->empleado->razon_social ?? $venta->user->name}}</div>

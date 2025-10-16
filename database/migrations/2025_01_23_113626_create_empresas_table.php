@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('propietario');
             $table->string('ruc', 50);
-            $table->integer('porcentaje_impuesto')->unsigned();
-            $table->string('abreviatura_impuesto', 5);
+            // $table->integer('porcentaje_impuesto')->unsigned(); // Eliminado: Ya no se gestiona el impuesto
+            // $table->string('abreviatura_impuesto', 5); // Eliminado: Ya no se gestiona la abreviatura del impuesto
             $table->string('direccion');
             $table->string('correo')->nullable();
             $table->string('telefono')->nullable();

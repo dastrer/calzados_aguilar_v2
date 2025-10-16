@@ -35,7 +35,8 @@
                 <x-forms.input id="direccion" required='true' :defaultValue='$empresa->direccion' />
             </div>
 
-            <div class="col-md-6">
+            {{-- CAMPOS DE IMPUESTO ELIMINADOS --}}
+            {{-- <div class="col-md-6">
                 <x-forms.input id="porcentaje_impuesto" required='true' :defaultValue='$empresa->porcentaje_impuesto'
                     type='number' labelText='Porcentaje del impuesto (%)' />
             </div>
@@ -43,7 +44,7 @@
             <div class="col-md-6">
                 <x-forms.input id="abreviatura_impuesto" required='true' :defaultValue='$empresa->abreviatura_impuesto'
                     labelText='Abreviatura del impuesto' />
-            </div>
+            </div> --}}
 
             <div class="col-md-4">
                 <x-forms.input id="correo" :defaultValue='$empresa->correo' type='email' />
@@ -62,7 +63,7 @@
                 <select name="moneda_id" id="moneda_id" class="form-select">
                     @foreach ($monedas as $moneda)
                     <option value="{{$moneda->id}}"
-                        {{$empresa->moneda_id == $moneda->id || old('moneda_id') == $moneda->id  ? 'selected' : ''}}>
+                        {{$empresa->moneda_id == $moneda->id || old('moneda_id') == $moneda->id ? 'selected' : ''}}>
                         {{$moneda->nombre_completo}}
                     </option>
                     @endforeach

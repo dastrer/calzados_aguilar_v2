@@ -49,10 +49,9 @@
                 <thead class="bg-primary">
                     <tr class="align-top">
                         <th class="text-white">Producto</th>
-                        <th class="text-white">Presentación</th>
+                        <th class="text-white">Modelo</th>
                         <th class="text-white">Cantidad</th>
                         <th class="text-white">Precio de compra</th>
-                        <th class="text-white">Fecha de vencimiento</th>
                         <th class="text-white">Subtotal</th>
                     </tr>
                 </thead>
@@ -71,9 +70,6 @@
                         <td>
                             {{$item->pivot->precio_compra}}
                         </td>
-                        <td>
-                            {{$item->pivot->fecha_vencimiento}}
-                        </td>
                         <td class="td-subtotal">
                             {{($item->pivot->cantidad) * ($item->pivot->precio_compra)}}
                         </td>
@@ -82,21 +78,21 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="6"></th>
+                        <th colspan="5"></th>
                     </tr>
                     <tr>
-                        <th colspan="5">Sumas:</th>
+                        <th colspan="4">Sumas:</th>
                         <th>
                             <span id="th-suma"></span>
                             <span>{{$empresa->moneda->simbolo}}</span>
                         </th>
                     </tr>
-                    <tr>
-                        <th colspan="5">{{$empresa->abreviatura_impuesto}}:</th>
+                    <tr style="display: none;">
+                        <th colspan="4">{{$empresa->abreviatura_impuesto}}:</th>
                         <th>{{$compra->impuesto}} {{$empresa->moneda->simbolo}}</th>
                     </tr>
                     <tr>
-                        <th colspan="5">Total:</th>
+                        <th colspan="4">Total:</th>
                         <th>{{$compra->total}} {{$empresa->moneda->simbolo}}</th>
                     </tr>
                 </tfoot>
