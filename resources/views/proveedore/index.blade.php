@@ -36,7 +36,8 @@
             <table id="datatablesSimple" class="table table-striped fs-6">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
+                        <th>Razón Social</th>
+                        <th>Teléfono</th> <!-- Nueva columna agregada -->
                         <th>Dirección</th>
                         <th>Documento</th>
                         <th>Tipo de persona</th>
@@ -49,6 +50,9 @@
                     <tr>
                         <td>
                             {{$item->persona->razon_social}}
+                        </td>
+                        <td>
+                            {{$item->persona->telefono ?? 'N/A'}} <!-- Mostrar teléfono -->
                         </td>
                         <td>
                             {{$item->persona->direccion}}
