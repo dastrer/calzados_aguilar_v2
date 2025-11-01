@@ -26,6 +26,7 @@ use App\Http\Controllers\userController;
 use App\Http\Controllers\ventaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB; // Agregar este use
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +71,22 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/importar-excel-empleados', [ImportExcelController::class, 'importExcelEmpleados'])
         ->name('import.excel-empleados');
 
+    // Ruta para obtener compras por proveedor - AGREGADA AQUÍ
+    Route::get('/compras-por-proveedor/{proveedor}', function ($proveedorId) {
+        $compras = DB::table('compras')
+            ->where('proveedore_id', $proveedorId)
+            ->select('id', 'fecha_hora', 'numero_comprobante', 'total', 'metodo_pago')
+            ->orderBy('fecha_hora', 'desc')
+            ->get();
+        
+        $totalGeneral = $compras->sum('total');
+        
+        return response()->json([
+            'compras' => $compras,
+            'total_general' => $totalGeneral
+        ]);
+    })->name('compras.por-proveedor');
+
     Route::post('/notifications/mark-as-read', function () {
         Auth::user()->unreadNotifications->markAsRead();
         return response()->json(['success' => true]);
@@ -77,8 +94,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
 
     Route::get('/logout', [logoutController::class, 'logout'])->name('logout');
 });
-
-
 
 Route::get('/login', [loginController::class, 'index'])->name('login.index');
 Route::post('/login', [loginController::class, 'login'])->name('login.login');

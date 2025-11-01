@@ -8,6 +8,28 @@
 
 @push('css')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .clickable-row:hover {
+        background-color: #f8f9fa !important;
+    }
+    .compras-details {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+    }
+    .compras-table {
+        font-size: 0.875rem;
+    }
+    .arrow-icon {
+        transition: transform 0.3s ease;
+    }
+    .arrow-icon.rotated {
+        transform: rotate(90deg);
+    }
+</style>
 @endpush
 
 @section('content')
@@ -36,23 +58,28 @@
             <table id="datatablesSimple" class="table table-striped fs-6">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Razón Social</th>
-                        <th>Teléfono</th> <!-- Nueva columna agregada -->
+                        <th>Teléfono</th>
                         <th>Dirección</th>
                         <th>Documento</th>
                         <th>Tipo de persona</th>
+                        <th>Compras</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($proveedores as $item)
-                    <tr>
+                    <tr class="clickable-row" onclick="toggleCompras({{ $item->id }})">
+                        <td>
+                            <i class="fas fa-chevron-right arrow-icon" id="arrow-{{ $item->id }}"></i>
+                        </td>
                         <td>
                             {{$item->persona->razon_social}}
                         </td>
                         <td>
-                            {{$item->persona->telefono ?? 'N/A'}} <!-- Mostrar teléfono -->
+                            {{$item->persona->telefono ?? 'N/A'}}
                         </td>
                         <td>
                             {{$item->persona->direccion}}
@@ -65,12 +92,24 @@
                             {{$item->persona->tipo->value}}
                         </td>
                         <td>
+                            @php
+                                $comprasCount = $item->compras->count();
+                                $totalCompras = $item->compras->sum('total');
+                            @endphp
+                            <span class="badge bg-{{ $comprasCount > 0 ? 'primary' : 'secondary' }}">
+                                {{ $comprasCount }} compra{{ $comprasCount != 1 ? 's' : '' }}
+                            </span>
+                            @if($comprasCount > 0)
+                                <br>
+                                <small class="text-muted">Bs. {{ number_format($totalCompras, 2) }}</small>
+                            @endif
+                        </td>
+                        <td>
                             <span class="badge rounded-pill text-bg-{{ $item->persona->estado ? 'success' : 'danger' }}">
                                 {{ $item->persona->estado ? 'Activo' : 'Eliminado'}}</span>
                         </td>
-                        <td>
+                        <td onclick="event.stopPropagation();">
                             <div class="d-flex justify-content-around">
-
                                 <div>
                                     <button title="Opciones" class="btn btn-datatable btn-icon btn-transparent-dark me-2" data-bs-toggle="dropdown" aria-expanded="false">
                                         <svg class="svg-inline--fa fa-ellipsis-vertical" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-vertical" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" data-fa-i2svg="">
@@ -108,6 +147,68 @@
                         </td>
                     </tr>
 
+                    <!-- Fila desplegable para compras -->
+                    <tr id="compras-{{ $item->id }}" style="display: none;">
+                        <td colspan="9" class="p-0">
+                            <div class="compras-details p-3">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-shopping-cart me-2"></i>
+                                    Compras de {{ $item->persona->razon_social }}
+                                </h6>
+                                
+                                @if($item->compras->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-sm compras-table">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th># Compra</th>
+                                                    <th>Fecha</th>
+                                                    <th>Comprobante</th>
+                                                    <th>Total</th>
+                                                    <th>Método Pago</th>
+                                                    <th>Usuario</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($item->compras as $compra)
+                                                <tr>
+                                                    <td><strong>#{{ $compra->id }}</strong></td>
+                                                    <td>{{ \Carbon\Carbon::parse($compra->fecha_hora)->format('d/m/Y H:i') }}</td>
+                                                    <td>{{ $compra->numero_comprobante }}</td>
+                                                    <td><strong>Bs. {{ number_format($compra->total, 2) }}</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-{{ $compra->metodo_pago === 'EFECTIVO' ? 'success' : 'info' }}">
+                                                            {{ $compra->metodo_pago }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ $compra->user->name ?? 'N/A' }}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-2 p-2 bg-white rounded">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small><strong>Total de compras:</strong> {{ $item->compras->count() }}</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small><strong>Monto total:</strong> 
+                                                    <span class="text-success">Bs. {{ number_format($item->compras->sum('total'), 2) }}</span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="alert alert-info text-center py-2">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        No se encontraron compras para este proveedor
+                                    </div>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+
                     <!-- Modal de confirmación-->
                     <div class="modal fade" id="confirmModal-{{$item->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -141,4 +242,19 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
+
+<script>
+function toggleCompras(proveedorId) {
+    const comprasRow = document.getElementById(`compras-${proveedorId}`);
+    const arrowIcon = document.getElementById(`arrow-${proveedorId}`);
+    
+    if (comprasRow.style.display === 'none') {
+        comprasRow.style.display = 'table-row';
+        arrowIcon.classList.add('rotated');
+    } else {
+        comprasRow.style.display = 'none';
+        arrowIcon.classList.remove('rotated');
+    }
+}
+</script>
 @endpush
