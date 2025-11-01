@@ -162,7 +162,7 @@
     $(document).ready(function() {
         let esCI = false;
 
-        // Función para mostrar notificaciones SweetAlert2 - CORREGIDA
+        // Función para mostrar notificaciones SweetAlert2
         function mostrarNotificacionError(mensaje) {
             Swal.fire({
                 toast: true,
@@ -195,6 +195,54 @@
             
             campo.removeClass('is-invalid');
             errorDiv.text('').hide();
+        }
+
+        // Función para validar teléfono
+        function validarTelefono(telefono) {
+            if (!telefono) return null; // No es obligatorio
+            
+            telefono = telefono.replace(/\s/g, '');
+            
+            // Validar formato internacional (con +)
+            if (telefono.startsWith('+')) {
+                const parteNumerica = telefono.substring(1);
+                
+                // Verificar que después del + solo haya números
+                if (!/^\d+$/.test(parteNumerica)) {
+                    return 'Después del + solo se permiten números';
+                }
+                
+                // Verificar longitud (máximo 12 dígitos después del +)
+                if (parteNumerica.length > 12) {
+                    return 'Máximo 12 dígitos después del +';
+                }
+                
+                if (parteNumerica.length < 1) {
+                    return 'Debe haber al menos 1 dígito después del +';
+                }
+                
+                return null; // Válido
+            }
+            // Validar formato nacional (sin +)
+            else {
+                // Verificar que solo contenga números
+                if (!/^\d+$/.test(telefono)) {
+                    return 'Solo se permiten números para formato nacional';
+                }
+                
+                // Verificar longitud exacta de 8 dígitos
+                if (telefono.length !== 8) {
+                    return 'El teléfono nacional debe tener exactamente 8 dígitos';
+                }
+                
+                // Verificar que empiece con 6, 7 o 2
+                const primerDigito = telefono.charAt(0);
+                if (!['6', '7', '2'].includes(primerDigito)) {
+                    return 'El teléfono nacional debe comenzar con 6, 7 o 2';
+                }
+                
+                return null; // Válido
+            }
         }
 
         // Validación para solo letras
@@ -244,7 +292,7 @@
             }
         });
 
-        // Validación y formateo de teléfono
+        // Validación y formateo de teléfono en tiempo real
         $('#telefono').on('input', function() {
             let value = $(this).val().replace(/\s/g, '');
             
@@ -256,6 +304,22 @@
             }
             
             $(this).val(value);
+            limpiarError('telefono');
+        });
+
+        // Validación de teléfono en tiempo real al perder foco
+        $('#telefono').on('blur', function() {
+            const telefono = $(this).val();
+            if (telefono) {
+                const error = validarTelefono(telefono);
+                if (error) {
+                    mostrarError('telefono', error);
+                } else {
+                    limpiarError('telefono');
+                }
+            } else {
+                limpiarError('telefono');
+            }
         });
 
         // Validación de dirección en tiempo real
@@ -299,6 +363,21 @@
             } else {
                 $('#direccion').removeClass('is-invalid');
                 limpiarError('direccion');
+            }
+
+            // Validar teléfono
+            const telefono = $('#telefono').val();
+            if (telefono) {
+                const errorTelefono = validarTelefono(telefono);
+                if (errorTelefono) {
+                    hayError = true;
+                    errores.push('• ' + errorTelefono);
+                    $('#telefono').addClass('is-invalid');
+                    mostrarError('telefono', errorTelefono);
+                } else {
+                    $('#telefono').removeClass('is-invalid');
+                    limpiarError('telefono');
+                }
             }
 
             // Validar que se haya seleccionado tipo de proveedor
@@ -357,16 +436,16 @@
             // Si no hay errores, proceder con el formateo normal
             const numero = $('#numero_documento').val();
             const complemento = $('#complemento').val();
-            const telefono = $('#telefono').val();
+            const telefonoFormateado = $('#telefono').val();
             
             // Preparar número de documento completo para CI
             if (esCI && complemento) {
                 $('#numero_documento').val(numero + '-' + complemento.toUpperCase());
             }
             
-            // Formatear teléfono (eliminar espacios)
-            if (telefono) {
-                $('#telefono').val(telefono.replace(/\s/g, ''));
+            // Formatear teléfono (eliminar espacios) antes de enviar
+            if (telefonoFormateado) {
+                $('#telefono').val(telefonoFormateado.replace(/\s/g, ''));
             }
             
             // UNIR CAMPOS PARA PERSONA NATURAL
