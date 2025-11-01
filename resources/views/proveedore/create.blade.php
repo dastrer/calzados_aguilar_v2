@@ -467,6 +467,17 @@
             return true;
         });
 
+        // Mostrar errores del backend si existen
+        @if($errors->any())
+            @php
+                $erroresBackend = [];
+                foreach ($errors->all() as $error) {
+                    $erroresBackend[] = '• ' . $error;
+                }
+            @endphp
+            mostrarNotificacionError('Por favor corrija los siguientes errores:\n\n{!! implode('\n', $erroresBackend) !!}');
+        @endif
+
         // Inicializar
         $('#tipo').trigger('change');
         
