@@ -5,6 +5,9 @@
 @push('css')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <style>
+    #box-nombre-completo {
+        display: none;
+    }
     #box-razon-social {
         display: none;
     }
@@ -40,16 +43,40 @@
                         @enderror
                     </div>
 
-                    <!-------Razón social------->
+                    <!-------Razón social (Jurídica)------->
                     <div class="col-12" id="box-razon-social">
-                        <label id="label-natural" for="razon_social" class="form-label">Nombres y Apellidos:</label>
-                        <label id="label-juridica" for="razon_social" class="form-label">Nombre de la empresa:</label>
-
-                        <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}">
-
+                        <label for="razon_social" class="form-label">Nombre de la empresa:</label>
+                        <input type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}">
                         @error('razon_social')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
+                    </div>
+
+                    <!-------Nombre completo (Natural)------->
+                    <div class="col-12" id="box-nombre-completo">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nombres" class="form-label">Nombres:</label>
+                                <input type="text" name="nombres" id="nombres" class="form-control solo-letras" value="{{old('nombres')}}">
+                                @error('nombres')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="apellido_paterno" class="form-label">Apellido Paterno:</label>
+                                <input type="text" name="apellido_paterno" id="apellido_paterno" class="form-control solo-letras" value="{{old('apellido_paterno')}}">
+                                @error('apellido_paterno')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="apellido_materno" class="form-label">Apellido Materno:</label>
+                                <input type="text" name="apellido_materno" id="apellido_materno" class="form-control solo-letras" value="{{old('apellido_materno')}}">
+                                @error('apellido_materno')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <!------Dirección---->
@@ -63,14 +90,21 @@
 
                     <!------Email---->
                     <div class="col-md-6">
-                        <x-forms.input id="email" type='email' labelText='Correo eléctronico' />
+                        <label for="email" class="form-label">Correo electrónico:</label>
+                        <input type="email" name="email" id="email" class="form-control" value="{{old('email')}}">
+                        @error('email')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
 
                     <!------Telefono---->
                     <div class="col-md-6">
-                        <x-forms.input id="telefono" type='number' />
+                        <label for="telefono" class="form-label">Teléfono:</label>
+                        <input type="number" name="telefono" id="telefono" class="form-control" value="{{old('telefono')}}">
+                        @error('telefono')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
-
 
                     <!--------------Documento------->
                     <div class="col-md-6">
@@ -101,8 +135,6 @@
             </div>
         </form>
     </div>
-
-
 </div>
 @endsection
 
@@ -111,17 +143,53 @@
     $(document).ready(function() {
         $('#tipo').on('change', function() {
             let selectValue = $(this).val();
-            //natural //juridica
+            
             if (selectValue == 'NATURAL') {
-                $('#label-juridica').hide();
-                $('#label-natural').show();
+                $('#box-razon-social').hide();
+                $('#box-nombre-completo').show();
+                // Hacer obligatorios los campos de persona natural
+                $('#nombres').prop('required', true);
+                $('#apellido_paterno').prop('required', true);
+                $('#apellido_materno').prop('required', false);
+                // Quitar requerido de razón social
+                $('#razon_social').prop('required', false);
+                // Limpiar valor de razón social
+                $('#razon_social').val('');
             } else {
-                $('#label-natural').hide();
-                $('#label-juridica').show();
+                $('#box-razon-social').show();
+                $('#box-nombre-completo').hide();
+                // Quitar requerido de campos de persona natural
+                $('#nombres').prop('required', false);
+                $('#apellido_paterno').prop('required', false);
+                $('#apellido_materno').prop('required', false);
+                // Hacer obligatoria la razón social
+                $('#razon_social').prop('required', true);
+                // Limpiar valores de nombre individuales
+                $('#nombres').val('');
+                $('#apellido_paterno').val('');
+                $('#apellido_materno').val('');
             }
-
-            $('#box-razon-social').show();
         });
+
+        // Validación para solo letras en los campos de nombre
+        $('.solo-letras').on('input', function() {
+            let value = $(this).val();
+            // Remover números y caracteres especiales, mantener solo letras y espacios
+            let newValue = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            $(this).val(newValue);
+        });
+
+        // También prevenir pegar contenido con números
+        $('.solo-letras').on('paste', function(e) {
+            let pastedData = e.originalEvent.clipboardData.getData('text');
+            if (/[0-9]/.test(pastedData)) {
+                e.preventDefault();
+                alert('No se permiten números en este campo');
+            }
+        });
+
+        // Trigger change al cargar la página para setear el estado inicial
+        $('#tipo').trigger('change');
     });
 </script>
 @endpush

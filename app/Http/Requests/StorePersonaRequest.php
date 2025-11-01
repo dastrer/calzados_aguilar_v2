@@ -24,13 +24,28 @@ class StorePersonaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'razon_social' => 'required|max:255',
+            'tipo' => ['required', new Enum(TipoPersonaEnum::class)],
+            'razon_social' => 'required_if:tipo,JURIDICA|max:255',
+            'nombres' => 'required_if:tipo,NATURAL|string|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            'apellido_paterno' => 'required_if:tipo,NATURAL|string|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            'apellido_materno' => 'nullable|string|max:100|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
             'direccion' => 'nullable|max:255',
             'telefono' => 'nullable|max:15',
-            'tipo' => ['required', new Enum(TipoPersonaEnum::class)],
             'email' => 'nullable|max:255|email',
             'documento_id' => 'required|integer|exists:documentos,id',
             'numero_documento' => 'required|max:20|unique:personas,numero_documento'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nombres.regex' => 'El campo nombres solo puede contener letras y espacios.',
+            'apellido_paterno.regex' => 'El campo apellido paterno solo puede contener letras y espacios.',
+            'apellido_materno.regex' => 'El campo apellido materno solo puede contener letras y espacios.',
+            'razon_social.required_if' => 'El campo razón social es obligatorio para personas jurídicas.',
+            'nombres.required_if' => 'El campo nombres es obligatorio para personas naturales.',
+            'apellido_paterno.required_if' => 'El campo apellido paterno es obligatorio para personas naturales.',
         ];
     }
 }

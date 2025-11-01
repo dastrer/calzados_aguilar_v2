@@ -50,11 +50,27 @@ class proveedorController extends Controller
     {
         try {
             DB::beginTransaction();
-            $persona = Persona::create($request->validated());
+            
+            $data = $request->validated();
+            
+            // Si es persona natural, combinar los campos en razon_social y limpiar razon_social original
+            if ($request->tipo == 'NATURAL') {
+                $nombres = trim($request->nombres);
+                $apellido_paterno = trim($request->apellido_paterno);
+                $apellido_materno = trim($request->apellido_materno ?? '');
+                
+                $data['razon_social'] = $nombres . ' ' . $apellido_paterno . 
+                                       ($apellido_materno ? ' ' . $apellido_materno : '');
+            } else {
+                // Si es jurídica, limpiar los campos de nombre individuales
+                unset($data['nombres'], $data['apellido_paterno'], $data['apellido_materno']);
+            }
+            
+            $persona = Persona::create($data);
             $persona->proveedore()->create([]);
             DB::commit();
 
-            ActivityLogService::log('Creacion de proveedor', 'Proveedores', $request->validated());
+            ActivityLogService::log('Creacion de proveedor', 'Proveedores', $data);
 
             return redirect()->route('proveedores.index')->with('success', 'Proveedor registrado');
         } catch (Throwable $e) {
@@ -81,7 +97,17 @@ class proveedorController extends Controller
     {
         $proveedore->load('persona.documento');
         $documentos = Documento::all();
-        return view('proveedore.edit', compact('proveedore', 'documentos'));
+        $optionsTipoPersona = TipoPersonaEnum::cases();
+        
+        // Si es persona natural, separar el razon_social en los campos individuales
+        if ($proveedore->persona->tipo == 'NATURAL') {
+            $partesNombre = explode(' ', $proveedore->persona->razon_social, 3);
+            $proveedore->persona->nombres = $partesNombre[0] ?? '';
+            $proveedore->persona->apellido_paterno = $partesNombre[1] ?? '';
+            $proveedore->persona->apellido_materno = $partesNombre[2] ?? '';
+        }
+        
+        return view('proveedore.edit', compact('proveedore', 'documentos', 'optionsTipoPersona'));
     }
 
     /**
@@ -90,8 +116,23 @@ class proveedorController extends Controller
     public function update(UpdateProveedoreRequest $request, Proveedore $proveedore): RedirectResponse
     {
         try {
-            $proveedore->persona->update($request->validated());
-            ActivityLogService::log('Edición de proveedor', 'Proveedores', $request->validated());
+            $data = $request->validated();
+            
+            // Si es persona natural, combinar los campos en razon_social y limpiar razon_social original
+            if ($request->tipo == 'NATURAL') {
+                $nombres = trim($request->nombres);
+                $apellido_paterno = trim($request->apellido_paterno);
+                $apellido_materno = trim($request->apellido_materno ?? '');
+                
+                $data['razon_social'] = $nombres . ' ' . $apellido_paterno . 
+                                       ($apellido_materno ? ' ' . $apellido_materno : '');
+            } else {
+                // Si es jurídica, limpiar los campos de nombre individuales
+                unset($data['nombres'], $data['apellido_paterno'], $data['apellido_materno']);
+            }
+            
+            $proveedore->persona->update($data);
+            ActivityLogService::log('Edición de proveedor', 'Proveedores', $data);
 
             return redirect()->route('proveedores.index')->with('success', 'Proveedor editado');
         } catch (Throwable $e) {
