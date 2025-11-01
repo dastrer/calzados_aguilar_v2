@@ -42,7 +42,11 @@
             <table id="datatablesSimple" class="table-striped fs-6">
                 <thead>
                     <tr>
-                        <th>Nombres y Apellidos</th>
+                        <th>Nombres</th>
+                        <th>Apellido Paterno</th>
+                        <th>Apellido Materno</th>
+                        <th>Contacto</th> 
+                        <th>Dirección</th>
                         <th>Cargo</th>
                         <th>Imagen</th>
                         <th>Acciones</th>
@@ -55,6 +59,23 @@
                             {{$item->razon_social}}
                         </td>
                         <td>
+                            {{$item->apellido_paterno}}
+                        </td>
+                        <td>
+                            {{$item->apellido_materno}}
+                        </td>
+                        
+                        <td>
+                            Correo: {{$item->correo}}
+                            <br>
+                            Teléfono: {{$item->telefono ?? 'N/A'}} 
+                        </td>
+                        
+                        <td>
+                            {{$item->direccion ?? 'Sin registrar'}}
+                        </td>
+
+                        <td>
                             {{$item->cargo}}
                         </td>
                         <td>
@@ -65,11 +86,9 @@
                             @else
                             <p class="text-muted text-center">No tiene una imagen</p>
                             @endif
-
                         </td>
                         <td>
                             <div class="d-flex justify-content-around">
-
                                 <div>
                                     <button title="Opciones" class="btn btn-datatable btn-icon btn-transparent-dark me-2" data-bs-toggle="dropdown" aria-expanded="false">
                                         <svg class="svg-inline--fa fa-ellipsis-vertical" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-vertical" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" data-fa-i2svg="">
@@ -77,7 +96,6 @@
                                         </svg>
                                     </button>
                                     <ul class="dropdown-menu text-bg-light" style="font-size: small;">
-                                        <!-----Editar -->
                                         @can('editar-empleado')
                                         <li><a class="dropdown-item" href="{{route('empleados.edit',['empleado'=>$item])}}">Editar</a></li>
                                         @endcan
@@ -85,12 +103,10 @@
                                 </div>
 
                                 <div>
-                                    <!----Separador----->
                                     <div class="vr"></div>
                                 </div>
 
                                 <div>
-                                    <!------Eliminar ---->
                                     @can('eliminar-empleado')
                                     <button title="Eliminar"
                                         data-bs-toggle="modal"
@@ -101,14 +117,11 @@
                                         </svg>
                                     </button>
                                     @endcan
-
                                 </div>
-
                             </div>
                         </td>
                     </tr>
 
-                    <!-- Modal -->
                     <div class="modal fade" id="confirmModal-{{$item->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -117,7 +130,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    ¿Seguro que quieres eliminar el empleado?
+                                    ¿Seguro que quieres eliminar el empleado {{$item->razon_social}}?
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

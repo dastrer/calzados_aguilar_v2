@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\storeEmpleadoRequest;
 use App\Models\Empleado;
+use App\Models\User; // Importación necesaria para eliminar el usuario
 use App\Services\ActivityLogService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage; // Importación necesaria para eliminar archivos (imágenes)
 use Throwable;
 
 class EmpleadoController extends Controller
@@ -94,15 +96,32 @@ class EmpleadoController extends Controller
     {
         try {
             $empleado = Empleado::findOrfail($id);
+            $message = 'Empleado eliminado correctamente.'; // Mensaje de éxito por defecto
 
+            // LÓGICA PARA ELIMINAR EL USUARIO ASOCIADO Y LA IMAGEN
+            // 1. Eliminar Usuario
+            if ($empleado->user) {
+                $empleado->user->delete();
+                $message = 'Empleado y usuario asociado eliminados correctamente.';
+            }
+
+            // 2. Eliminar Imagen
+            if ($empleado->img_path) {
+                Storage::delete($empleado->img_path);
+            }
+
+            // Log de actividad antes de la eliminación final del empleado
             ActivityLogService::log('Eliminación de empleado', 'Empleados', [
                 'empleado' => $empleado
             ]);
+
+            // Eliminar el empleado
             $empleado->delete();
-            return redirect()->route('empleados.index')->with('success', 'Empleado eliminado');
+            
+            return redirect()->route('empleados.index')->with('success', $message);
         } catch (Throwable $e) {
             Log::error('Error al eliminar al empleado', ['error' => $e->getMessage()]);
-            return redirect()->route('empleados.index')->with('error', 'Ups, algo falló');
+            return redirect()->route('empleados.index')->with('error', 'Ups, algo falló al eliminar el empleado.');
         }
     }
 }

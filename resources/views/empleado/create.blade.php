@@ -19,14 +19,45 @@
 
         <div class="row g-4">
 
+            {{-- Fila 1: Nombres y Apellido Paterno --}}
             <div class="col-md-6">
-                <x-forms.input id="razon_social" required='true' labelText='Nombres y Apellidos' />
+                {{-- Razon Social (Nombre) --}}
+                <x-forms.input id="razon_social" required='true' labelText='Nombres' />
             </div>
 
             <div class="col-md-6">
-                <x-forms.input id="cargo" required='true' />
+                {{-- Apellido Paterno --}}
+                <x-forms.input id="apellido_paterno" required='true' labelText='Apellido Paterno' />
             </div>
 
+            {{-- Fila 2: Apellido Materno y Correo --}}
+            <div class="col-md-6">
+                {{-- Apellido Materno (Opcional) --}}
+                <x-forms.input id="apellido_materno" labelText='Apellido Materno (Opcional)' />
+            </div>
+
+            <div class="col-md-6">
+                {{-- Correo (Único) --}}
+                <x-forms.input id="correo" type='email' required='true' labelText='Correo Electrónico' />
+            </div>
+
+            {{-- Fila 3: Teléfono y Cargo --}}
+            <div class="col-md-6">
+                {{-- Teléfono (Opcional) --}}
+                <x-forms.input id="telefono" labelText='Teléfono (Opcional)' />
+            </div>
+            
+            <div class="col-md-6">
+                <x-forms.input id="cargo" required='true' labelText='Cargo / Puesto' />
+            </div>
+            
+            {{-- Fila 4: Dirección (ocupa 12 columnas para ser más amplio, manteniendo la estética simple) --}}
+            <div class="col-md-12">
+                {{-- Dirección (Opcional) --}}
+                <x-forms.textarea id="direccion" labelText='Dirección (Opcional)' />
+            </div>
+
+            {{-- Fila 5: Imagen --}}
             <div class="col-md-6">
                 <x-forms.input id="img" type='file' labelText='Seleccione una imagen'/>
             </div>

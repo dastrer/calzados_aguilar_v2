@@ -23,7 +23,6 @@
             </div>
             <div class="card-body">
 
-                <!-----Empleado  .------>
                 <div class="row mb-4">
                     <label for="empleado_id" class="col-lg-2 col-form-label">
                         Empleado:</label>
@@ -33,8 +32,10 @@
                             <option value="" selected disabled>Seleccione:</option>
                             @foreach ($empleados as $item)
                             <option value="{{$item->id}}"
+                                {{-- AGREGAMOS data-email Y EL NOMBRE COMPLETO --}}
+                                data-email="{{$item->correo}}" 
                                 {{ old('empleado_id') == $item->id ? 'selected': '' }}>
-                                {{$item->razon_social}}
+                                {{$item->razon_social}} {{$item->apellido_paterno}} {{$item->apellido_materno}}
                             </option>
                             @endforeach
                         </select>
@@ -51,9 +52,8 @@
                     </div>
                 </div>
 
-                <!---Nombre---->
                 <div class="row mb-4">
-                    <label for="name" class="col-lg-2 col-form-label">Nombres:</label>
+                    <label for="name" class="col-lg-2 col-form-label">Identificador:</label>
                     <div class="col-lg-4">
                         <input autocomplete="off" type="text" name="name"
                             id="name" class="form-control" value="{{old('name')}}"
@@ -71,7 +71,6 @@
                     </div>
                 </div>
 
-                <!---Email---->
                 <div class="row mb-4">
                     <label for="email" class="col-lg-2 col-form-label">Email:</label>
                     <div class="col-lg-4">
@@ -91,7 +90,6 @@
                     </div>
                 </div>
 
-                <!---Password---->
                 <div class="row mb-4">
                     <label for="password" class="col-lg-2 col-form-label">Contraseña:</label>
                     <div class="col-lg-4">
@@ -110,7 +108,6 @@
                     </div>
                 </div>
 
-                <!---Confirm_Password---->
                 <div class="row mb-4">
                     <label for="password_confirm" class="col-lg-2 col-form-label">Confirmar:</label>
                     <div class="col-lg-4">
@@ -129,7 +126,6 @@
                     </div>
                 </div>
 
-                <!---Roles---->
                 <div class="row mb-4">
                     <label for="role" class="col-lg-2 col-form-label">Rol:</label>
                     <div class="col-lg-4">
@@ -167,5 +163,29 @@
 @endsection
 
 @push('js')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Obtener referencias a los elementos
+        const empleadoSelect = document.getElementById('empleado_id');
+        const emailInput = document.getElementById('email');
 
+        // 2. Agregar un oyente de eventos al cambio en el selector de empleados
+        empleadoSelect.addEventListener('change', function() {
+            // 3. Obtener la opción seleccionada
+            const selectedOption = this.options[this.selectedIndex];
+            
+            // 4. Obtener el valor del atributo data-email
+            const email = selectedOption.getAttribute('data-email');
+            
+            // 5. Establecer el valor en el campo de email
+            emailInput.value = email;
+        });
+
+        // Opcional: Si old('empleado_id') está seteado (por un error de validación), 
+        // se puede llamar a la función para precargar el email.
+        // if(empleadoSelect.value !== '') {
+        //     empleadoSelect.dispatchEvent(new Event('change'));
+        // }
+    });
+</script>
 @endpush

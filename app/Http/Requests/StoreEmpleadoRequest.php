@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreEmpleadoRequest extends FormRequest
 {
@@ -16,14 +17,34 @@ class StoreEmpleadoRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
+        // Determinamos si estamos creando (STORE) o editando (UPDATE)
+        // Esto es crucial para la regla 'unique' del correo.
+        $empleadoId = $this->route('empleado') ? $this->route('empleado')->id : null;
+
         return [
-            'razon_social' => 'required|max:255',
-            'cargo' => 'required|max:50',
+            // Campos de Nombre y Apellidos
+            'razon_social' => 'required|string|max:255',
+            'apellido_paterno' => 'required|string|max:255',
+            'apellido_materno' => 'nullable|string|max:255',
+
+            // Campo de Contacto
+            'correo' => [
+                'required',
+                'email',
+                'max:255',
+                // La regla 'unique' ignora el ID del empleado actual si estamos editando
+                Rule::unique('empleados', 'correo')->ignore($empleadoId),
+            ],
+            
+            // Otros Campos
+            'direccion' => 'nullable|string|max:500', // Un límite alto para direcciones largas
+            'telefono' => 'nullable|string|max:20', 
+
+            // Campos Existentes
+            'cargo' => 'required|string|max:50',
             'img' => 'nullable|image|mimes:png,jpg,jpeg|max:2048'
         ];
     }

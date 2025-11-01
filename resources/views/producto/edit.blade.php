@@ -40,21 +40,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-6">
-                        <p class="form-label">Código de barras</p>
-
-                        <?php
-                        require base_path('vendor/autoload.php');
-                        $codigo = $producto->codigo;
-                        $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
-
-                        try {
-                            echo '<img src="data:image/png;base64,' . base64_encode($generator->getBarcode($codigo, $generator::TYPE_EAN_13)) . '">';
-                        } catch (Exception $e) {
-                            echo "Formato no compatible";
-                        }
-                        ?>
-                    </div>
+                    
 
                     <!---Nombre---->
                     <div class="col-12">

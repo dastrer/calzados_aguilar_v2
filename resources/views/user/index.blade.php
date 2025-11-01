@@ -48,7 +48,16 @@
                 <tbody>
                     @foreach ($users as $item)
                     <tr>
-                        <td>{{$item->empleado->razon_social}}</td>
+                        {{-- CÓDIGO MODIFICADO AQUÍ --}}
+                        <td>
+                            {{ $item->empleado?->razon_social }} 
+                            {{ $item->empleado?->apellido_paterno }}
+                            {{ $item->empleado?->apellido_materno }}
+                            @empty($item->empleado)
+                                <span class="text-danger">(Sin asignar)</span>
+                            @endempty
+                        </td>
+                        
                         <td>{{$item->name}}</td>
                         <td>{{$item->email}}</td>
                         <td>
@@ -68,18 +77,15 @@
                                         </svg>
                                     </button>
                                     <ul class="dropdown-menu text-bg-light" style="font-size: small;">
-                                        <!-----Editar usuarios--->
                                         @can('editar-user')
                                         <li><a class="dropdown-item" href="{{route('users.edit',['user'=>$item])}}">Editar</a></li>
                                         @endcan
                                     </ul>
                                 </div>
                                 <div>
-                                    <!----Separador----->
                                     <div class="vr"></div>
                                 </div>
                                 <div>
-                                    <!------Eliminar user---->
                                     @can('eliminar-user')
                                     @if ($item->estado == 1)
                                     <button title="Eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}" class="btn btn-datatable btn-icon btn-transparent-dark">
@@ -98,7 +104,6 @@
                         </td>
                     </tr>
 
-                    <!-- Modal de confirmación-->
                     <div class="modal fade" id="confirmModal-{{$item->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">

@@ -11,10 +11,10 @@
 @section('content')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Presentaciones</h1>
+    <h1 class="mt-4 text-center">Modelos</h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
-        <li class="breadcrumb-item active">Presentaciones</li>
+        <li class="breadcrumb-item active">Modelos</li>
     </ol>
 
     @can('crear-presentacione')
