@@ -4,6 +4,7 @@
 
 @push('css')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     #box-nombre-completo {
         display: none;
@@ -13,6 +14,15 @@
     }
     #box-complemento {
         display: none;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: none;
+    }
+    .is-invalid {
+        border-color: #dc3545;
     }
 </style>
 @endpush
@@ -27,7 +37,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('proveedores.store') }}" method="post">
+        <form action="{{ route('proveedores.store') }}" method="post" id="proveedorForm">
             @csrf
             <div class="card-body">
                 <div class="row g-3">
@@ -89,6 +99,7 @@
                         @error('direccion')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
+                        <div class="error-message" id="direccion-error"></div>
                     </div>
 
                     <!------Email---->
@@ -151,6 +162,41 @@
     $(document).ready(function() {
         let esCI = false;
 
+        // Función para mostrar notificaciones SweetAlert2 - CORREGIDA
+        function mostrarNotificacionError(mensaje) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: mensaje,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+
+        // Función para mostrar error en campo
+        function mostrarError(campoId, mensaje) {
+            const campo = $('#' + campoId);
+            const errorDiv = $('#' + campoId + '-error');
+            
+            campo.addClass('is-invalid');
+            errorDiv.text(mensaje).show();
+        }
+
+        // Función para limpiar error
+        function limpiarError(campoId) {
+            const campo = $('#' + campoId);
+            const errorDiv = $('#' + campoId + '-error');
+            
+            campo.removeClass('is-invalid');
+            errorDiv.text('').hide();
+        }
+
         // Validación para solo letras
         $('.solo-letras').on('input', function() {
             $(this).val($(this).val().replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ''));
@@ -212,9 +258,103 @@
             $(this).val(value);
         });
 
-        // Formatear datos antes de enviar - UNIR CAMPOS PARA PERSONA NATURAL
-        $('form').on('submit', function() {
+        // Validación de dirección en tiempo real
+        $('#direccion').on('blur', function() {
+            validarDireccion();
+        });
+
+        // Función para validar dirección
+        function validarDireccion() {
+            const direccion = $('#direccion').val().trim();
+            
+            if (!direccion) {
+                mostrarError('direccion', 'La dirección es obligatoria');
+                return false;
+            } else if (direccion.length < 5) {
+                mostrarError('direccion', 'La dirección debe tener al menos 5 caracteres');
+                return false;
+            } else {
+                limpiarError('direccion');
+                return true;
+            }
+        }
+
+        // Validación antes de enviar el formulario
+        $('#proveedorForm').on('submit', function(e) {
+            let errores = [];
+            let hayError = false;
+
+            // Validar dirección
+            const direccion = $('#direccion').val().trim();
+            if (!direccion) {
+                hayError = true;
+                errores.push('• La dirección es obligatoria');
+                $('#direccion').addClass('is-invalid');
+                mostrarError('direccion', 'La dirección es obligatoria');
+            } else if (direccion.length < 5) {
+                hayError = true;
+                errores.push('• La dirección debe tener al menos 5 caracteres');
+                $('#direccion').addClass('is-invalid');
+                mostrarError('direccion', 'La dirección debe tener al menos 5 caracteres');
+            } else {
+                $('#direccion').removeClass('is-invalid');
+                limpiarError('direccion');
+            }
+
+            // Validar que se haya seleccionado tipo de proveedor
             const tipoProveedor = $('#tipo').val();
+            if (!tipoProveedor) {
+                hayError = true;
+                errores.push('• Debe seleccionar el tipo de proveedor');
+                $('#tipo').addClass('is-invalid');
+            } else {
+                $('#tipo').removeClass('is-invalid');
+            }
+
+            // Validar campos según el tipo de proveedor
+            if (tipoProveedor === 'JURIDICA') {
+                const razonSocial = $('#razon_social').val();
+                if (!razonSocial.trim()) {
+                    hayError = true;
+                    errores.push('• La razón social es obligatoria para persona jurídica');
+                    $('#razon_social').addClass('is-invalid');
+                } else {
+                    $('#razon_social').removeClass('is-invalid');
+                }
+            } else if (tipoProveedor === 'NATURAL') {
+                const nombres = $('#nombres').val();
+                const apellidoPaterno = $('#apellido_paterno').val();
+                
+                if (!nombres.trim()) {
+                    hayError = true;
+                    errores.push('• El nombre es obligatorio para persona natural');
+                    $('#nombres').addClass('is-invalid');
+                } else {
+                    $('#nombres').removeClass('is-invalid');
+                }
+                
+                if (!apellidoPaterno.trim()) {
+                    hayError = true;
+                    errores.push('• El apellido paterno es obligatorio para persona natural');
+                    $('#apellido_paterno').addClass('is-invalid');
+                } else {
+                    $('#apellido_paterno').removeClass('is-invalid');
+                }
+            }
+
+            if (hayError) {
+                e.preventDefault();
+                
+                // Crear mensaje de error formateado
+                let mensajeError = 'Por favor corrija los siguientes errores:\n\n';
+                mensajeError += errores.join('\n');
+                
+                // Mostrar SweetAlert2
+                mostrarNotificacionError(mensajeError);
+                return false;
+            }
+
+            // Si no hay errores, proceder con el formateo normal
             const numero = $('#numero_documento').val();
             const complemento = $('#complemento').val();
             const telefono = $('#telefono').val();
