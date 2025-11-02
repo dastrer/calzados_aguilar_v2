@@ -113,12 +113,8 @@ class ventaController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Convertir la fecha a datetime agregando la hora actual
-            $validatedData = $request->validated();
-            $validatedData['fecha_hora'] = $validatedData['fecha_hora'] . ' ' . now()->format('H:i:s');
-            
             //Llenar mi tabla venta
-            $venta = Venta::create($validatedData);
+            $venta = Venta::create($request->validated());
 
             //Llenar mi tabla venta_producto
             //1. Recuperar los arrays
@@ -153,7 +149,7 @@ class ventaController extends Controller
             CreateVentaEvent::dispatch($venta);
 
             DB::commit();
-            ActivityLogService::log('Creación de una venta', 'Ventas', $validatedData);
+            ActivityLogService::log('Creación de una venta', 'Ventas', $request->validated());
             return redirect()->route('movimientos.index', ['caja_id' => $venta->caja_id])
                 ->with('success', 'Venta registrada');
         } catch (Throwable $e) {
