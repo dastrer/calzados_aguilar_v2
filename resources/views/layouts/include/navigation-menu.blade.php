@@ -91,13 +91,13 @@
                 @endcan
 
                 @can('ver-inventario')
-                <x-nav.nav-link content='Inventario'
+                <x-nav.nav-link content='Existencias'
                     icon='fa-solid fa-book'
                     :href="route('inventario.index')" />
                 @endcan
 
                 @can('ver-kardex')
-                <x-nav.nav-link content='Almacén'
+                <x-nav.nav-link content='Inventario'
                     icon='fa-solid fa-file'
                     :href="route('kardex.index')" />
                 @endcan

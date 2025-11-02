@@ -12,11 +12,11 @@
 @section('content')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Inventario</h1>
+    <h1 class="mt-4 text-center">Existencias y Ubicaciones</h1>
 
     <x-breadcrumb.template>
         <x-breadcrumb.item :href="route('panel')" content="Inicio" />
-        <x-breadcrumb.item active='true' content="Inventario" />
+        <x-breadcrumb.item active='true' content="Existencias" />
     </x-breadcrumb.template>
 
     <div class="mb-4">

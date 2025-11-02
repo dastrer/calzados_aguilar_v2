@@ -14,11 +14,11 @@
 @section('content')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Kardex</h1>
+    <h1 class="mt-4 text-center">Inventario</h1>
 
     <x-breadcrumb.template>
         <x-breadcrumb.item :href="route('panel')" content="Inicio" />
-        <x-breadcrumb.item active='true' content="Kardex" />
+        <x-breadcrumb.item active='true' content="Inventario" />
     </x-breadcrumb.template>
 
     <div class="mb-3">
@@ -49,7 +49,7 @@
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Tabla kardex del producto
+            Inventario de productos
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table-striped fs-6">
@@ -60,7 +60,7 @@
                         <th>Descripción </th>
                         <th>Entrada</th>
                         <th>Salida</th>
-                        <th>Saldo</th>
+                        <th>Stock</th>
                         <th>Costo unitario</th>
                         <th>Costo total</th>
                     </tr>
