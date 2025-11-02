@@ -37,14 +37,33 @@ class ventaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $ventas = Venta::with(['comprobante', 'cliente.persona', 'user'])
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->get();
+        $ventas = Venta::with([
+            'comprobante', 
+            'cliente.persona', 
+            'user', 
+            'productos' => function($query) {
+                $query->with('marca.caracteristica');
+            }
+        ])
+        ->when($request->fecha, function($query, $fecha) {
+            // Usar whereDate con fecha_hora
+            return $query->whereDate('fecha_hora', $fecha);
+        })
+        ->when($request->producto_id, function($query, $productoId) {
+            return $query->whereHas('productos', function($q) use ($productoId) {
+                $q->where('productos.id', $productoId);
+            });
+        })
+        ->where('user_id', Auth::id())
+        ->latest()
+        ->get();
 
-        return view('venta.index', compact('ventas'));
+        // Obtener productos para el filtro
+        $productos = Producto::where('estado', 1)->get(['id', 'nombre', 'codigo']);
+
+        return view('venta.index', compact('ventas', 'productos'));
     }
 
     /**
