@@ -69,7 +69,8 @@
                             <input type="text"
                                 name="numero_comprobante"
                                 id="numero_comprobante"
-                                class="form-control">
+                                class="form-control"
+                                onkeypress="return validarNumeroComprobante(event)">
                             @error('numero_comprobante')
                             <small class="text-danger">{{ '*'.$message }}</small>
                             @enderror
@@ -144,13 +145,13 @@
                         <div class="col-sm-6">
                             <label for="cantidad" class="form-label">
                                 Cantidad:</label>
-                            <input type="number" id="cantidad" class="form-control">
+                            <input type="text" id="cantidad" class="form-control" onkeypress="return validarCantidad(event)">
                         </div>
 
                         <div class="col-sm-6">
                             <label for="precio_compra" class="form-label">
                                 Precio de compra:</label>
-                            <input type="number" id="precio_compra" class="form-control" step="0.1">
+                            <input type="text" id="precio_compra" class="form-control" onkeypress="return validarPrecio(event)">
                         </div>
 
                         <div class="col-12 my-4 text-end">
@@ -272,7 +273,71 @@
         });
 
         disableButtons();
+
+        // Prevenir el pegado de contenido no válido
+        $('#numero_comprobante, #cantidad, #precio_compra').on('paste', function(e) {
+            e.preventDefault();
+            showModal('No se permite pegar contenido en este campo', 'warning');
+        });
+
+        // Validación adicional para el campo de precio (permite punto decimal)
+        $('#precio_compra').on('input', function() {
+            this.value = this.value.replace(/[^0-9.]/g, '');
+            
+            // Asegurar que solo haya un punto decimal
+            if ((this.value.match(/\./g) || []).length > 1) {
+                this.value = this.value.substring(0, this.value.lastIndexOf('.'));
+            }
+        });
+
+        // Validación adicional para cantidad (solo números enteros)
+        $('#cantidad').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Validación adicional para número de comprobante (solo números)
+        $('#numero_comprobante').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
     });
+
+    // Funciones de validación para keypress
+    function validarNumeroComprobante(event) {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        // Permitir solo números (0-9)
+        if (charCode < 48 || charCode > 57) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+
+    function validarCantidad(event) {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        // Permitir solo números (0-9)
+        if (charCode < 48 || charCode > 57) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+
+    function validarPrecio(event) {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        // Permitir números (0-9) y punto decimal (46)
+        if ((charCode < 48 || charCode > 57) && charCode !== 46) {
+            event.preventDefault();
+            return false;
+        }
+        
+        // Evitar múltiples puntos decimales
+        if (charCode === 46 && event.target.value.includes('.')) {
+            event.preventDefault();
+            return false;
+        }
+        
+        return true;
+    }
 
     function configurarFecha() {
         const fechaInput = document.getElementById('fecha_hora');
@@ -370,7 +435,7 @@
         let precioCompra = $('#precio_compra').val();
 
         //Validaciones 
-        //1.Para que los campos no esten vacíos (la fecha de vencimiento ya no se valida aquí)
+        //1.Para que los campos no esten vacíos
         if (textProducto != '' && textProducto != undefined && cantidad != '' && precioCompra != '') {
 
             let nameProducto = textProducto.match(/-\s(.*?)\s-/)[1];
@@ -387,7 +452,7 @@
                     igv = round(sumas / 100 * impuesto);
                     total = round(sumas + igv);
 
-                    //Crear la fila - SE ELIMINA la columna de arrayfechavencimiento
+                    //Crear la fila
                     let fila = '<tr id="fila' + cont + '">' +
                         '<td><input type="hidden" name="arrayidproducto[]" value="' + idProducto + '">' + nameProducto + '</td>' +
                         '<td>' + presentacionProducto + '</td>' +
@@ -457,7 +522,6 @@
         select.selectpicker('val', '');
         $('#cantidad').val('');
         $('#precio_compra').val('');
-        // SE ELIMINA la línea de limpieza: $('#fecha_vencimiento').val('');
     }
 
     function round(num, decimales = 2) {
@@ -472,7 +536,6 @@
         num = num.toString().split('e');
         return signo * (num[0] + 'e' + (num[1] ? (+num[1] - decimales) : -decimales));
     }
-    //Fuente: https://es.stackoverflow.com/questions/48958/redondear-a-dos-decimales-cuando-sea-necesario
 
     function showModal(message, icon = 'error') {
         const Toast = Swal.mixin({
