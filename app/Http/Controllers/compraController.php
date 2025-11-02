@@ -40,12 +40,25 @@ class compraController extends Controller
      */
     public function index(): View
     {
-        $compras = Compra::with('comprobante', 'proveedore.persona')
-            ->where('user_id', Auth::id())
-            ->latest()
-            ->get();
+        $query = Compra::with(['comprobante', 'proveedore.persona', 'user', 'productos'])
+            ->where('user_id', Auth::id());
+        
+        // Filtro por fecha
+        if (request()->has('fecha') && request('fecha') != '') {
+            $query->whereDate('fecha_hora', request('fecha'));
+        }
+        
+        // Filtro por producto
+        if (request()->has('producto_id') && request('producto_id') != '') {
+            $query->whereHas('productos', function($q) {
+                $q->where('productos.id', request('producto_id'));
+            });
+        }
+        
+        $compras = $query->latest()->get();
+        $productos = Producto::where('estado', 1)->orderBy('nombre')->get();
 
-        return view('compra.index', compact('compras'));
+        return view('compra.index', compact('compras', 'productos'));
     }
 
     /**
