@@ -61,6 +61,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::resource('cajas', CajaController::class)->except('edit', 'update', 'show');
     Route::resource('movimientos', MovimientoController::class)->except('show', 'edit', 'update', 'destroy');
 
+    // Ruta para reubicar inventario - AGREGADA AQUÍ
+    Route::put('/inventario/{inventario}/reubicar', [InventarioControlller::class, 'reubicar'])
+        ->name('inventario.reubicar');
+
     //Reportes
     Route::get('/export-pdf-comprobante-venta/{id}', [ExportPDFController::class, 'exportPdfComprobanteVenta'])
         ->name('export.pdf-comprobante-venta');

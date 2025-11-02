@@ -23,23 +23,64 @@
 
     <div class="mb-3">
         <form action="{{route('kardex.index')}}" method="get">
-            <div class="row gy-2">
-                <label for="producto_id" class="col-sm-2 col-form-label">
-                    Producto</label>
-                <div class="col-sm-8">
+            <div class="row gy-2 align-items-end">
+                <!-- Filtro por Producto -->
+                <div class="col-sm-3">
+                    <label for="producto_id" class="form-label">Producto</label>
                     <select name="producto_id" id="producto_id"
                         class="form-control selectpicker"
-                        data-live-search='true' data-size='3' title='Busque un producto aquí'>
+                        data-live-search='true' data-size='3' title='Seleccione producto'>
+                        <option value="">Todos los productos</option>
                         @foreach ($productos as $item)
                         <option value="{{$item->id}}" {{$item->id == $producto_id ? 'selected': ''}}>
-                            {{$item->nombre_completo}}
+                            {{$item->nombre}} @if($item->presentacione && $item->presentacione->caracteristica)- {{$item->presentacione->caracteristica->nombre}}@endif
                         </option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary">
-                        Buscar</button>
+
+                <!-- Filtro por Modelo (Presentación) -->
+                <div class="col-sm-3">
+                    <label for="presentacione_id" class="form-label">Modelo</label>
+                    <select name="presentacione_id" id="presentacione_id"
+                        class="form-control selectpicker"
+                        data-live-search='true' data-size='3' title='Seleccione modelo'>
+                        <option value="">Todos los modelos</option>
+                        @foreach ($presentaciones as $presentacione)
+                        <option value="{{$presentacione->id}}" {{$presentacione->id == $presentacione_id ? 'selected': ''}}>
+                            @if($presentacione->caracteristica)
+                                {{ $presentacione->caracteristica->nombre }}
+                            @else
+                                {{ $presentacione->nombre ?? 'N/A' }}
+                            @endif
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filtro por Tipo de Transacción -->
+                <div class="col-sm-3">
+                    <label for="tipo_transaccion" class="form-label">Tipo de Transacción</label>
+                    <select name="tipo_transaccion" id="tipo_transaccion"
+                        class="form-control selectpicker"
+                        data-size='3' title='Seleccione tipo'>
+                        <option value="">Todos los tipos</option>
+                        <option value="compra" {{$tipo_transaccion == 'compra' ? 'selected': ''}}>Compra</option>
+                        <option value="venta" {{$tipo_transaccion == 'venta' ? 'selected': ''}}>Venta</option>
+                        <option value="apertura" {{$tipo_transaccion == 'apertura' ? 'selected': ''}}>Apertura</option>
+                    </select>
+                </div>
+
+                <!-- Botones de búsqueda y limpiar -->
+                <div class="col-sm-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="fas fa-search me-1"></i>Buscar
+                        </button>
+                        <a href="{{route('kardex.index')}}" class="btn btn-secondary flex-fill">
+                            <i class="fas fa-times me-1"></i>Limpiar
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
@@ -55,6 +96,8 @@
             <table id="datatablesSimple" class="table-striped fs-6">
                 <thead>
                     <tr>
+                        <th>Producto</th>
+                        <th>Modelo</th>
                         <th>Fecha y Hora</th>
                         <th>Transacción</th>
                         <th>Descripción </th>
@@ -68,6 +111,20 @@
                 <tbody>
                     @foreach ($kardex as $item)
                     <tr>
+                        <td>
+                            @if($item->producto)
+                                {{ $item->producto->nombre }}
+                            @else
+                                <span class="text-muted">N/A</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($item->producto && $item->producto->presentacione && $item->producto->presentacione->caracteristica)
+                                {{ $item->producto->presentacione->caracteristica->nombre }}
+                            @else
+                                <span class="text-muted">N/A</span>
+                            @endif
+                        </td>
                         <td>
                             {{$item->fecha}} - {{$item->hora}}
                         </td>
@@ -102,7 +159,6 @@
     @else
     <p class="text-center my-5">Sin datos</p>
     @endif
-
 
 </div>
 @endsection

@@ -18,9 +18,10 @@ class Kardex extends Model
 
     private const MARGEN_GANANCIA = 0.2;
 
+    // CORRECCIÓN: La relación debe apuntar al modelo Producto
     public function producto(): BelongsTo
     {
-        return $this->belongsTo(Kardex::class);
+        return $this->belongsTo(Producto::class, 'producto_id'); // Agregar la clave foránea
     }
 
     public function getFechaAttribute(): string

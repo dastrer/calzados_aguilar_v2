@@ -19,6 +19,20 @@
         <x-breadcrumb.item active='true' content="Existencias" />
     </x-breadcrumb.template>
 
+    @if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
     <div class="mb-4">
         <button type="button"
             class="btn btn-primary"
@@ -34,21 +48,36 @@
             Tabla inventario
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table-striped fs-6">
+            <table id="datatablesSimple" class="table table-striped fs-6">
                 <thead>
                     <tr>
                         <th>Producto</th>
                         <th>Stock</th>
                         <th>Ubicación</th>
-                        {{-- CAMBIO: Se elimina el encabezado de "Fecha de Vencimiento" --}}
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($inventario as $item)
+                    @php
+                        // Extraer solo el nombre del producto del nombre_completo
+                        $partes = explode(' - ', $item->producto->nombre_completo);
+                        $nombreProducto = '';
+                        
+                        foreach ($partes as $parte) {
+                            if (!str_contains($parte, 'Código:') && !str_contains($parte, 'Modelo:')) {
+                                $nombreProducto = $parte;
+                                break;
+                            }
+                        }
+                        
+                        // Obtener el nombre de la presentación desde la característica
+                        $nombrePresentacion = $item->producto->presentacione->caracteristica->nombre ?? 'Sin Modelo';
+                    @endphp
                     <tr>
                         <td>
-                            {{$item->producto->nombre_completo}}
+                            <strong>{{ $nombreProducto }}</strong><br>
+                            <small class="text-muted">Modelo: {{ $nombrePresentacion }}</small>
                         </td>
                         <td>
                             {{$item->cantidad}}
@@ -56,19 +85,79 @@
                         <td>
                             {{$item->ubicacione->nombre}}
                         </td>
-                        {{-- CAMBIO: Se elimina la columna que mostraba la fecha de vencimiento --}}
                         <td>
-
+                            <div class="d-flex justify-content-around">
+                                <!-- Botón para reubicar -->
+                                <button type="button" 
+                                    class="btn btn-sm btn-success"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#reubicarModal-{{$item->id}}"
+                                    title="Reubicar producto">
+                                    Reubicar
+                                </button>
+                            </div>
                         </td>
                     </tr>
+
+                    <!-- Modal para reubicar -->
+                    <div class="modal fade" id="reubicarModal-{{$item->id}}" tabindex="-1" aria-labelledby="reubicarModalLabel-{{$item->id}}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{{ route('inventario.reubicar', $item->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="reubicarModalLabel-{{$item->id}}">Reubicar Producto</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @php
+                                            // Extraer solo el nombre del producto para el modal
+                                            $partesModal = explode(' - ', $item->producto->nombre_completo);
+                                            $nombreProductoModal = '';
+                                            
+                                            foreach ($partesModal as $parte) {
+                                                if (!str_contains($parte, 'Código:') && !str_contains($parte, 'Modelo:')) {
+                                                    $nombreProductoModal = $parte;
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            // Obtener el nombre de la presentación para el modal
+                                            $nombrePresentacionModal = $item->producto->presentacione->caracteristica->nombre ?? 'Sin Modelo';
+                                        @endphp
+                                        <p><strong>Producto:</strong> {{ $nombreProductoModal }}</p>
+                                        <p><strong>Modelo:</strong> {{ $nombrePresentacionModal }}</p>
+                                        <p><strong>Ubicación actual:</strong> {{$item->ubicacione->nombre}}</p>
+                                        <p><strong>Stock actual:</strong> {{$item->cantidad}}</p>
+                                        
+                                        <div class="mb-3">
+                                            <label for="nueva_ubicacion-{{$item->id}}" class="form-label">Nueva ubicación:</label>
+                                            <select name="ubicacione_id" id="nueva_ubicacion-{{$item->id}}" class="form-select" required>
+                                                <option value="">Seleccione una ubicación</option>
+                                                @foreach ($ubicaciones as $ubicacion)
+                                                <option value="{{$ubicacion->id}}" {{ $ubicacion->id == $item->ubicacione_id ? 'disabled' : '' }}>
+                                                    {{$ubicacion->nombre}}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Reubicar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     @endforeach
                 </tbody>
             </table>
-
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal del plano -->
     <div class="modal fade" id="verPlanoModal"
         tabindex="-1"
         aria-labelledby="exampleModalLabel"
