@@ -27,7 +27,19 @@
     <x-forms.template :action="route('inventario.store')" method='post'>
 
         <x-slot name='header'>
-            <p>Producto: <span class='fw-bold'>{{$producto->nombre_completo}}</span></p>
+            @php
+                // Extraer solo el nombre del producto del nombre_completo
+                $partes = explode(' - ', $producto->nombre_completo);
+                $nombre = '';
+                
+                foreach ($partes as $parte) {
+                    if (!str_contains($parte, 'Código:') && !str_contains($parte, 'Presentación:')) {
+                        $nombre = $parte;
+                        break;
+                    }
+                }
+            @endphp
+            <p>Producto: <span class='fw-bold'>{{ $nombre }}</span></p>
         </x-slot>
 
         <div class="row g-4">
@@ -57,10 +69,7 @@
                 <x-forms.input id="cantidad" required='true' type='number' />
             </div>
 
-            <!-----Fecha de vencimiento----->
-            <div class="col-md-6">
-                <x-forms.input id="fecha_vencimiento" type='date' labelText='Fecha de Vencimiento' />
-            </div>
+           
 
               <!-----Costo Unitario----->
               <div class="col-md-6">

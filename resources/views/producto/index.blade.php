@@ -36,7 +36,8 @@
             <table id="datatablesSimple" class="table table-striped fs-6">
                 <thead>
                     <tr>
-                        <th>Producto</th>
+                        <th>Nombre</th>
+                        <th>Modelo</th>
                         <th>Precio</th>
                         <th>Marca</th>
                         <th>Categoría</th>
@@ -46,9 +47,27 @@
                 </thead>
                 <tbody>
                     @foreach ($productos as $item)
+                    @php
+                        // Extraer las partes del nombreCompleto
+                        $partes = explode(' - ', $item->nombreCompleto);
+                        $codigo = '';
+                        $nombre = '';
+                        $codigoPresentacion = '';
+                        
+                        foreach ($partes as $parte) {
+                            if (str_contains($parte, 'Código:')) {
+                                $codigo = str_replace('Código: ', '', $parte);
+                            } elseif (str_contains($parte, 'Presentación:')) {
+                                $codigoPresentacion = str_replace('Presentación: ', '', $parte);
+                            } else {
+                                $nombre = $parte;
+                            }
+                        }
+                    @endphp
                     <tr>
+                        <td>{{ $nombre }}</td>
                         <td>
-                            {{$item->nombreCompleto}}
+                            {{ $item->presentacione->caracteristica->nombre ?? $codigoPresentacion }}
                         </td>
                         <td>
                             {{$item->precio ?? 'No aperturado'}}
@@ -128,13 +147,15 @@
                                 <div class="modal-body">
                                     <div class="row">
                                         <div class="col-12">
+                                            <p><span class="fw-bolder">Nombre: </span>{{ $nombre }}</p>
+                                            <p><span class="fw-bolder">Presentación: </span>{{ $item->presentacione->caracteristica->nombre ?? $codigoPresentacion }}</p>
                                             <p><span class="fw-bolder">Descripción: </span>{{$item->descripcion ?? 'No tiene'}}</p>
                                         </div>
                                         <div class="col-12">
                                             <p class="fw-bolder">Imagen:</p>
                                             <div>
                                                 @if (!empty($item->img_path))
-                                                <img src="{{ asset($item->img_path) }}" alt="{{ $item->nombre }}"
+                                                <img src="{{ asset($item->img_path) }}" alt="{{ $nombre }}"
                                                     class="img-fluid img-thumbnail border border-4 rounded">
                                                 @else
                                                 <p>Sin imagen</p>

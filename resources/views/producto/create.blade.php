@@ -95,9 +95,9 @@
 
                             <!---Presentaciones---->
                             <div class="col-12">
-                                <label for="presentacione_id" class="form-label">Presentación:</label>
+                                <label for="presentacione_id" class="form-label">Modelo:</label>
                                 <select data-size="4"
-                                    title="Seleccione una presentación"
+                                    title="Seleccione un modelo"
                                     data-live-search="true"
                                     name="presentacione_id"
                                     id="presentacione_id"
