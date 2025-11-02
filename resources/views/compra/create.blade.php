@@ -106,14 +106,14 @@
 
                         <div class="col-sm-6">
                             <label for="fecha_hora" class="form-label">
-                                Fecha y hora:</label>
+                                Fecha:</label>
                             <input
                                 required
-                                type="datetime-local"
+                                type="date"
                                 name="fecha_hora"
                                 id="fecha_hora"
                                 class="form-control"
-                                value="">
+                                value="{{ date('Y-m-d') }}">
                             @error('fecha_hora')
                             <small class="text-danger">{{ '*'.$message }}</small>
                             @enderror
@@ -260,6 +260,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Configurar las restricciones de fecha
+        configurarFecha();
+        
         $('#btn_agregar').click(function() {
             agregarProducto();
         });
@@ -270,6 +273,38 @@
 
         disableButtons();
     });
+
+    function configurarFecha() {
+        const fechaInput = document.getElementById('fecha_hora');
+        const hoy = new Date();
+        
+        // Calcular fecha mínima (una semana antes)
+        const fechaMinima = new Date();
+        fechaMinima.setDate(hoy.getDate() - 7);
+        
+        // Calcular fecha máxima (una semana después)
+        const fechaMaxima = new Date();
+        fechaMaxima.setDate(hoy.getDate() + 7);
+        
+        // Formatear fechas para el input date (YYYY-MM-DD)
+        const formatoFecha = (fecha) => {
+            return fecha.toISOString().split('T')[0];
+        };
+        
+        // Establecer atributos min y max
+        fechaInput.min = formatoFecha(fechaMinima);
+        fechaInput.max = formatoFecha(fechaMaxima);
+        fechaInput.value = formatoFecha(hoy);
+        
+        // Validar en tiempo real
+        fechaInput.addEventListener('change', function() {
+            const fechaSeleccionada = new Date(this.value);
+            if (fechaSeleccionada < fechaMinima || fechaSeleccionada > fechaMaxima) {
+                showModal('La fecha debe estar dentro del rango permitido: una semana antes y una semana después de hoy', 'warning');
+                this.value = formatoFecha(hoy); // Resetear a hoy
+            }
+        });
+    }
 
     //Variables
     let cont = 0;

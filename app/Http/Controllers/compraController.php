@@ -92,16 +92,25 @@ class compraController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Obtener datos validados del request
+            $validatedData = $request->validated();
+            
+            // Agregar campos adicionales que no están en el StoreCompraRequest
+            $compraData = array_merge($validatedData, [
+                'fecha_hora' => $request->fecha_hora . ' ' . now()->format('H:i:s'),
+                'user_id' => auth()->id(),
+                'numero_comprobante' => $request->numero_comprobante,
+            ]);
 
             // Llenar tabla compras
-            // NOTA: El subtotal e impuesto se limpian en StoreCompraRequest.php antes de este punto.
             $compra = new Compra();
-            $request->merge([
-                'comprobante_path' => isset($request->file_comprobante)
-                    ? $compra->handleUploadFile($request->file_comprobante)
-                    : null
-            ]);
-            $compra = Compra::create($request->all());
+            
+            // Manejar archivo si existe
+            if (isset($request->file_comprobante)) {
+                $compraData['comprobante_path'] = $compra->handleUploadFile($request->file_comprobante);
+            }
+
+            $compra = Compra::create($compraData);
 
             // Llenar tabla compra_producto
             //1.Recuperar los arrays
@@ -135,7 +144,7 @@ class compraController extends Controller
             }
 
             DB::commit();
-            ActivityLogService::log('Creación de compra', 'Compras', $request->all());
+            ActivityLogService::log('Creación de compra', 'Compras', $compraData);
             return redirect()->route('compras.index')->with('success', 'compra exitosa');
         } catch (Throwable $e) {
             DB::rollBack();
