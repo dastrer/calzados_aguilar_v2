@@ -7,6 +7,7 @@
 @endpush
 @push('css')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .row-not-space {
         width: 110px;
@@ -35,6 +36,54 @@
     .arrow-icon.rotated {
         transform: rotate(90deg);
     }
+    .stat-card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.8;
+    }
+    .producto-badge {
+        font-size: 0.75rem;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    .chart-container-half {
+        position: relative;
+        height: 150px;
+        width: 100%;
+    }
+    .chart-card {
+        border-radius: 10px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        height: 100%;
+    }
+    .chart-card .card-body {
+        padding: 1rem;
+    }
+    .metodos-pago-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-left: 4px solid #6c757d;
+    }
+    .equal-height-row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .equal-height-row > [class*='col-'] {
+        display: flex;
+        flex-direction: column;
+    }
+    .productos-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
 </style>
 @endpush
 
@@ -46,6 +95,92 @@
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Ventas</li>
     </ol>
+
+    <!-- Sección de Estadísticas -->
+    @if(isset($estadisticas))
+    <div class="row mb-4">
+        <!-- Resumen de Ventas -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Ventas Hoy</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Bs. {{ number_format($estadisticas['ventas_hoy'], 2) }}
+                            </div>
+                            <small class="text-muted">{{ $estadisticas['cantidad_ventas_hoy'] }} ventas</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-day stat-icon text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Ventas Semana</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Bs. {{ number_format($estadisticas['ventas_semana'], 2) }}
+                            </div>
+                            <small class="text-muted">{{ $estadisticas['cantidad_ventas_semana'] }} ventas</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-week stat-icon text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Ventas Mes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Bs. {{ number_format($estadisticas['ventas_mes'], 2) }}
+                            </div>
+                            <small class="text-muted">{{ $estadisticas['cantidad_ventas_mes'] }} ventas</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt stat-icon text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Ventas Año</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                Bs. {{ number_format($estadisticas['ventas_anio'], 2) }}
+                            </div>
+                            <small class="text-muted">Total acumulado</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line stat-icon text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     @can('crear-venta')
     <div class="mb-4">
@@ -287,6 +422,130 @@
         </div>
     </div>
 
+    <!-- Gráficos debajo de la tabla -->
+    @if(isset($estadisticas))
+    <div class="row equal-height-row mb-4">
+        <!-- Gráfico de Ventas de los Últimos 7 Días -->
+        @if(count($estadisticas['ventas_ultima_semana']) > 0)
+        <div class="col-xl-8 col-lg-7 mb-4">
+            <div class="card chart-card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Ventas de los Últimos 7 Días
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="ventasUltimaSemanaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Productos Más Vendidos -->
+        @if(count($estadisticas['productos_mas_vendidos']) > 0 && !request('producto_id'))
+        <div class="col-xl-4 col-lg-5 mb-4">
+            <div class="card chart-card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-star me-2"></i>
+                        Productos Más Vendidos
+                    </h6>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <!-- Gráfico más pequeño -->
+                    <div class="chart-container-half mb-3">
+                        <canvas id="productosMasVendidosChart"></canvas>
+                    </div>
+                    <!-- Lista de productos con scroll -->
+                    <div class="productos-list">
+                        @foreach($estadisticas['productos_mas_vendidos'] as $index => $producto)
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-primary me-2">#{{ $index + 1 }}</span>
+                                <div>
+                                    <div class="small fw-bold">{{ Str::limit($producto->nombre, 20) }}</div>
+                                    <div class="text-muted small">Cód: {{ $producto->codigo }}</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-success">{{ $producto->total_vendido }} und.</div>
+                                <div class="text-muted small">Bs. {{ number_format($producto->monto_total, 2) }}</div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+    </div>
+    @endif
+
+    <!-- Métodos de Pago Hoy - Debajo de los gráficos -->
+    @if(isset($estadisticas) && ($estadisticas['efectivo_hoy'] > 0 || $estadisticas['qr_hoy'] > 0))
+    <div class="card mb-4 metodos-pago-card">
+        <div class="card-header">
+            <i class="fas fa-credit-card me-1"></i>
+            Resumen de Métodos de Pago - Hoy
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="border-end-md">
+                        <div class="h4 text-success mb-1">
+                            <i class="fas fa-money-bill-wave me-2"></i>
+                            Bs. {{ number_format($estadisticas['efectivo_hoy'], 2) }}
+                        </div>
+                        <div class="text-muted">
+                            <span class="badge bg-success me-1">EFECTIVO</span>
+                            {{ $estadisticas['efectivo_hoy'] > 0 ? number_format(($estadisticas['efectivo_hoy'] / ($estadisticas['efectivo_hoy'] + $estadisticas['qr_hoy'])) * 100, 1) : 0 }}%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="h4 text-info mb-1">
+                        <i class="fas fa-qrcode me-2"></i>
+                        Bs. {{ number_format($estadisticas['qr_hoy'], 2) }}
+                    </div>
+                    <div class="text-muted">
+                        <span class="badge bg-info me-1">QR</span>
+                        {{ $estadisticas['qr_hoy'] > 0 ? number_format(($estadisticas['qr_hoy'] / ($estadisticas['efectivo_hoy'] + $estadisticas['qr_hoy'])) * 100, 1) : 0 }}%
+                    </div>
+                </div>
+            </div>
+            @if($estadisticas['efectivo_hoy'] > 0 && $estadisticas['qr_hoy'] > 0)
+            <div class="mt-3">
+                <div class="progress" style="height: 10px;">
+                    <div class="progress-bar bg-success" role="progressbar"
+                         style="width: {{ ($estadisticas['efectivo_hoy'] / ($estadisticas['efectivo_hoy'] + $estadisticas['qr_hoy'])) * 100 }}%"
+                         aria-valuenow="{{ ($estadisticas['efectivo_hoy'] / ($estadisticas['efectivo_hoy'] + $estadisticas['qr_hoy'])) * 100 }}"
+                         aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                    <div class="progress-bar bg-info" role="progressbar"
+                         style="width: {{ ($estadisticas['qr_hoy'] / ($estadisticas['efectivo_hoy'] + $estadisticas['qr_hoy'])) * 100 }}%"
+                         aria-valuenow="{{ ($estadisticas['qr_hoy'] / ($estadisticas['efectivo_hoy'] + $estadisticas['qr_hoy'])) * 100 }}"
+                         aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <small class="text-success">Efectivo</small>
+                    <small class="text-info">QR</small>
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection
 
@@ -294,7 +553,6 @@
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
     // Simple-DataTables
-    // https://github.com/fiduswriter/Simple-DataTables/wiki
     window.addEventListener('DOMContentLoaded', event => {
         const dataTable = new simpleDatatables.DataTable("#datatablesSimple", {})
     });
@@ -311,5 +569,149 @@
             arrowIcon.classList.remove('rotated');
         }
     }
+
+    // Gráficos
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(isset($estadisticas))
+
+        // Gráfico de Productos Más Vendidos (mitad de altura)
+        @if(count($estadisticas['productos_mas_vendidos']) > 0 && !request('producto_id'))
+        const productosMasVendidosCtx = document.getElementById('productosMasVendidosChart').getContext('2d');
+        const productosMasVendidosChart = new Chart(productosMasVendidosCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    @foreach($estadisticas['productos_mas_vendidos'] as $producto)
+                    '{{ Str::limit($producto->nombre, 10) }}',
+                    @endforeach
+                ],
+                datasets: [{
+                    label: 'Cantidad Vendida',
+                    data: [
+                        @foreach($estadisticas['productos_mas_vendidos'] as $producto)
+                        {{ $producto->total_vendido }},
+                        @endforeach
+                    ],
+                    backgroundColor: [
+                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' unidades';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        },
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        @endif
+
+        // Gráfico de Ventas de los Últimos 7 Días (altura completa)
+        @if(count($estadisticas['ventas_ultima_semana']) > 0)
+        const ventasSemanaCtx = document.getElementById('ventasUltimaSemanaChart').getContext('2d');
+        const ventasSemanaChart = new Chart(ventasSemanaCtx, {
+            type: 'line',
+            data: {
+                labels: [
+                    @foreach($estadisticas['ventas_ultima_semana'] as $venta)
+                    '{{ \Carbon\Carbon::parse($venta->fecha)->format("d/m") }}',
+                    @endforeach
+                ],
+                datasets: [{
+                    label: 'Monto Total (Bs.)',
+                    data: [
+                        @foreach($estadisticas['ventas_ultima_semana'] as $venta)
+                        {{ $venta->monto_total }},
+                        @endforeach
+                    ],
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Bs. ' + context.parsed.y.toLocaleString('es-BO', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Bs. ' + value.toLocaleString('es-BO', {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                });
+                            }
+                        },
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        @endif
+
+        @endif
+    });
 </script>
 @endpush
