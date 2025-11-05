@@ -84,6 +84,20 @@
         max-height: 200px;
         overflow-y: auto;
     }
+    .btn-periodo.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    .chart-loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .periodo-selector {
+        background: #f8f9fa;
+        border-radius: 5px;
+        padding: 0.25rem;
+    }
 </style>
 @endpush
 
@@ -425,30 +439,38 @@
     <!-- Gráficos debajo de la tabla -->
     @if(isset($estadisticas))
     <div class="row equal-height-row mb-4">
-        <!-- Gráfico de Ventas de los Últimos 7 Días -->
-        @if(count($estadisticas['ventas_ultima_semana']) > 0)
+        <!-- Gráfico de Ventas Dinámico -->
         <div class="col-xl-8 col-lg-7 mb-4">
             <div class="card chart-card shadow h-100">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
                         <i class="fas fa-chart-line me-2"></i>
-                        Ventas de los Últimos 7 Días
+                        <span id="chartTitle">Ventas de los Últimos 7 Días</span>
                     </h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
+                    <div class="periodo-selector">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-periodo="7dias">
+                                7 Días
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-periodo="mes">
+                                Mes
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-periodo="anio">
+                                Año
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-periodo="dia">
+                                Hoy
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
-                        <canvas id="ventasUltimaSemanaChart"></canvas>
+                        <canvas id="ventasDinamicoChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-        @endif
 
         <!-- Productos Más Vendidos -->
         @if(count($estadisticas['productos_mas_vendidos']) > 0 && !request('producto_id'))
@@ -574,6 +596,164 @@
     document.addEventListener('DOMContentLoaded', function() {
         @if(isset($estadisticas))
 
+        let ventasChart = null;
+        const ventasDinamicoCtx = document.getElementById('ventasDinamicoChart').getContext('2d');
+
+        // Datos para los diferentes períodos
+        const chartData = {
+            'dia': {
+                labels: [
+                    @foreach($estadisticas['ventas_por_dia'] as $venta)
+                    @if(isset($venta->etiqueta))
+                    '{{ $venta->etiqueta }}',
+                    @else
+                    '{{ \Carbon\Carbon::parse($venta->fecha)->format("H:i") }}',
+                    @endif
+                    @endforeach
+                ],
+                data: [
+                    @foreach($estadisticas['ventas_por_dia'] as $venta)
+                    {{ $venta->monto_total }},
+                    @endforeach
+                ],
+                title: 'Ventas del Día'
+            },
+            '7dias': {
+                labels: [
+                    @foreach($estadisticas['ventas_por_dia'] as $venta)
+                    '{{ \Carbon\Carbon::parse($venta->fecha)->format("d/m") }}',
+                    @endforeach
+                ],
+                data: [
+                    @foreach($estadisticas['ventas_por_dia'] as $venta)
+                    {{ $venta->monto_total }},
+                    @endforeach
+                ],
+                title: 'Ventas de los Últimos 7 Días'
+            },
+            'mes': {
+                labels: [
+                    @foreach($estadisticas['ventas_por_mes'] as $venta)
+                    '{{ $venta->etiqueta }}',
+                    @endforeach
+                ],
+                data: [
+                    @foreach($estadisticas['ventas_por_mes'] as $venta)
+                    {{ $venta->monto_total }},
+                    @endforeach
+                ],
+                title: 'Ventas del Último Año por Mes'
+            },
+            'anio': {
+                labels: [
+                    @foreach($estadisticas['ventas_por_anio'] as $venta)
+                    '{{ $venta->etiqueta }}',
+                    @endforeach
+                ],
+                data: [
+                    @foreach($estadisticas['ventas_por_anio'] as $venta)
+                    {{ $venta->monto_total }},
+                    @endforeach
+                ],
+                title: 'Ventas de los Últimos 5 Años'
+            }
+        };
+
+        // Función para inicializar el gráfico
+        function inicializarGrafico(periodo) {
+            if (ventasChart) {
+                ventasChart.destroy();
+            }
+
+            const data = chartData[periodo];
+
+            ventasChart = new Chart(ventasDinamicoCtx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Monto Total (Bs.)',
+                        data: data.data,
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Bs. ' + context.parsed.y.toLocaleString('es-BO', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Bs. ' + value.toLocaleString('es-BO', {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0
+                                    });
+                                }
+                            },
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Actualizar título
+            document.getElementById('chartTitle').textContent = data.title;
+        }
+
+        // Inicializar con 7 días
+        inicializarGrafico('7dias');
+
+        // Event listeners para los botones
+        document.querySelectorAll('[data-periodo]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remover clase active de todos los botones
+                document.querySelectorAll('[data-periodo]').forEach(btn => {
+                    btn.classList.remove('active', 'btn-primary');
+                    btn.classList.add('btn-outline-primary');
+                });
+
+                // Agregar clase active al botón clickeado
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('active', 'btn-primary');
+
+                // Cambiar el gráfico
+                const periodo = this.getAttribute('data-periodo');
+                inicializarGrafico(periodo);
+            });
+        });
+
         // Gráfico de Productos Más Vendidos (mitad de altura)
         @if(count($estadisticas['productos_mas_vendidos']) > 0 && !request('producto_id'))
         const productosMasVendidosCtx = document.getElementById('productosMasVendidosChart').getContext('2d');
@@ -631,79 +811,6 @@
                             font: {
                                 size: 10
                             }
-                        }
-                    }
-                }
-            }
-        });
-        @endif
-
-        // Gráfico de Ventas de los Últimos 7 Días (altura completa)
-        @if(count($estadisticas['ventas_ultima_semana']) > 0)
-        const ventasSemanaCtx = document.getElementById('ventasUltimaSemanaChart').getContext('2d');
-        const ventasSemanaChart = new Chart(ventasSemanaCtx, {
-            type: 'line',
-            data: {
-                labels: [
-                    @foreach($estadisticas['ventas_ultima_semana'] as $venta)
-                    '{{ \Carbon\Carbon::parse($venta->fecha)->format("d/m") }}',
-                    @endforeach
-                ],
-                datasets: [{
-                    label: 'Monto Total (Bs.)',
-                    data: [
-                        @foreach($estadisticas['ventas_ultima_semana'] as $venta)
-                        {{ $venta->monto_total }},
-                        @endforeach
-                    ],
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'Bs. ' + context.parsed.y.toLocaleString('es-BO', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                });
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'Bs. ' + value.toLocaleString('es-BO', {
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0
-                                });
-                            }
-                        },
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
                         }
                     }
                 }
