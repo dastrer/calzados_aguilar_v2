@@ -68,7 +68,7 @@
             <form action="{{ route('ventas.index') }}" method="GET" class="row g-3">
                 <div class="col-md-4">
                     <label for="fecha" class="form-label">Fecha de Venta</label>
-                    <input type="date" class="form-control" id="fecha" name="fecha" 
+                    <input type="date" class="form-control" id="fecha" name="fecha"
                            value="{{ request('fecha') }}">
                 </div>
                 <div class="col-md-4">
@@ -76,7 +76,7 @@
                     <select class="form-select" id="producto_id" name="producto_id">
                         <option value="">Todos los productos</option>
                         @foreach($productos as $producto)
-                            <option value="{{ $producto->id }}" 
+                            <option value="{{ $producto->id }}"
                                     {{ request('producto_id') == $producto->id ? 'selected' : '' }}>
                                 {{ $producto->nombre }} ({{ $producto->codigo }})
                             </option>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
             </form>
-            
+
             @if(request()->has('fecha') || request()->has('producto_id'))
             <div class="mt-3">
                 <small class="text-muted">
@@ -205,7 +205,7 @@
                                     <i class="fas fa-shopping-cart me-2"></i>
                                     Productos de la Venta #{{ $item->id }}
                                 </h6>
-                                
+
                                 @if($item->productos->count() > 0)
                                     <div class="table-responsive">
                                         <table class="table table-sm productos-table">
@@ -246,14 +246,14 @@
                                                 <small><strong>Total de productos:</strong> {{ $item->productos->count() }}</small>
                                             </div>
                                             <div class="col-md-4">
-                                                <small><strong>Método de pago:</strong> 
+                                                <small><strong>Método de pago:</strong>
                                                     <span class="badge bg-{{ $item->metodo_pago === 'EFECTIVO' ? 'success' : 'info' }}">
                                                         {{ $item->metodo_pago }}
                                                     </span>
                                                 </small>
                                             </div>
                                             <div class="col-md-4">
-                                                <small><strong>Total venta:</strong> 
+                                                <small><strong>Total venta:</strong>
                                                     <span class="text-success">Bs. {{ number_format($item->total, 2) }}</span>
                                                 </small>
                                             </div>
@@ -302,7 +302,7 @@
     function toggleProductosVenta(ventaId) {
         const productosRow = document.getElementById(`productos-venta-${ventaId}`);
         const arrowIcon = document.getElementById(`arrow-${ventaId}`);
-        
+
         if (productosRow.style.display === 'none') {
             productosRow.style.display = 'table-row';
             arrowIcon.classList.add('rotated');

@@ -42,19 +42,19 @@ class compraController extends Controller
     {
         $query = Compra::with(['comprobante', 'proveedore.persona', 'user', 'productos'])
             ->where('user_id', Auth::id());
-        
+
         // Filtro por fecha
         if (request()->has('fecha') && request('fecha') != '') {
             $query->whereDate('fecha_hora', request('fecha'));
         }
-        
+
         // Filtro por producto
         if (request()->has('producto_id') && request('producto_id') != '') {
             $query->whereHas('productos', function($q) {
                 $q->where('productos.id', request('producto_id'));
             });
         }
-        
+
         $compras = $query->latest()->get();
         $productos = Producto::where('estado', 1)->orderBy('nombre')->get();
 
@@ -70,9 +70,36 @@ class compraController extends Controller
             $query->where('estado', 1);
         })->get();
         $comprobantes = $comprobanteService->obtenerComprobantes();
-        $productos = Producto::where('estado', 1)->get();
+
+        // MODIFICACIÓN: Cargar productos con relaciones y procesar el formato
+        $productos = Producto::with([
+            'presentacione.caracteristica',
+            'marca.caracteristica',
+            'categoria.caracteristica'
+        ])->where('estado', 1)->get()->map(function($producto) {
+            // Procesar el nombreCompleto para extraer el nombre simple
+            $partes = explode(' - ', $producto->nombreCompleto);
+            $nombre = '';
+            $codigoPresentacion = '';
+
+            foreach ($partes as $parte) {
+                if (str_contains($parte, 'Presentación:')) {
+                    $codigoPresentacion = str_replace('Presentación: ', '', $parte);
+                } elseif (!str_contains($parte, 'Código:')) {
+                    $nombre = $parte;
+                }
+            }
+
+            // Crear propiedades adicionales para la vista
+            $producto->nombre_simple = $nombre;
+            $producto->modelo = $producto->presentacione->caracteristica->nombre ?? $codigoPresentacion;
+            $producto->texto_select = $nombre . ' - ' . $producto->modelo;
+
+            return $producto;
+        });
+
         $optionsMetodoPago = MetodoPagoEnum::cases();
-        
+
         // CORRECCIÓN: La variable $empresa es necesaria para mostrar el símbolo de la moneda en la vista.
         $empresa = $this->empresaService->obtenerEmpresa();
 

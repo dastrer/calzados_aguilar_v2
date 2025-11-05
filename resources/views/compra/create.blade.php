@@ -96,9 +96,8 @@
                                 id="metodo_pago"
                                 class="form-control selectpicker"
                                 title="Selecciona">
-                                @foreach ($optionsMetodoPago as $item)
-                                <option value="{{$item->value}}">{{$item->name}}</option>
-                                @endforeach
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="QR">QR</option>
                             </select>
                             @error('metodo_pago')
                             <small class="text-danger">{{ '*'.$message }}</small>
@@ -134,10 +133,12 @@
                             <select id="producto_id"
                                 class="form-control selectpicker"
                                 data-live-search="true"
-                                data-size="1"
-                                title="Busque un producto aquí">
+                                data-live-search-placeholder="Buscar producto..."
+                                data-size="10"
+                                data-show-subtext="true"
+                                title="Busque un producto aquí - Se muestran todos los productos disponibles">
                                 @foreach ($productos as $item)
-                                <option value="{{$item->id}}">{{$item->nombre_completo}}</option>
+                                <option value="{{$item->id}}">{{ $item->texto_select }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -263,7 +264,10 @@
     $(document).ready(function() {
         // Configurar las restricciones de fecha
         configurarFecha();
-        
+
+        // Inicializar el selectpicker de productos para mostrar todas las opciones
+        $('#producto_id').selectpicker('refresh');
+
         $('#btn_agregar').click(function() {
             agregarProducto();
         });
@@ -283,7 +287,7 @@
         // Validación adicional para el campo de precio (permite punto decimal)
         $('#precio_compra').on('input', function() {
             this.value = this.value.replace(/[^0-9.]/g, '');
-            
+
             // Asegurar que solo haya un punto decimal
             if ((this.value.match(/\./g) || []).length > 1) {
                 this.value = this.value.substring(0, this.value.lastIndexOf('.'));
@@ -329,38 +333,38 @@
             event.preventDefault();
             return false;
         }
-        
+
         // Evitar múltiples puntos decimales
         if (charCode === 46 && event.target.value.includes('.')) {
             event.preventDefault();
             return false;
         }
-        
+
         return true;
     }
 
     function configurarFecha() {
         const fechaInput = document.getElementById('fecha_hora');
         const hoy = new Date();
-        
+
         // Calcular fecha mínima (una semana antes)
         const fechaMinima = new Date();
         fechaMinima.setDate(hoy.getDate() - 7);
-        
+
         // Calcular fecha máxima (una semana después)
         const fechaMaxima = new Date();
         fechaMaxima.setDate(hoy.getDate() + 7);
-        
+
         // Formatear fechas para el input date (YYYY-MM-DD)
         const formatoFecha = (fecha) => {
             return fecha.toISOString().split('T')[0];
         };
-        
+
         // Establecer atributos min y max
         fechaInput.min = formatoFecha(fechaMinima);
         fechaInput.max = formatoFecha(fechaMaxima);
         fechaInput.value = formatoFecha(hoy);
-        
+
         // Validar en tiempo real
         fechaInput.addEventListener('change', function() {
             const fechaSeleccionada = new Date(this.value);
@@ -434,17 +438,19 @@
         let cantidad = $('#cantidad').val();
         let precioCompra = $('#precio_compra').val();
 
-        //Validaciones 
+        //Validaciones
         //1.Para que los campos no esten vacíos
         if (textProducto != '' && textProducto != undefined && cantidad != '' && precioCompra != '') {
 
-            let nameProducto = textProducto.match(/-\s(.*?)\s-/)[1];
-            let presentacionProducto = textProducto.match(/Presentación:\s(.*)/)[1];
+            // NUEVO: Extraer nombre y presentación del formato "nombre - modelo"
+            let partes = textProducto.split(' - ');
+            let nameProducto = partes[0]; // Nombre del producto
+            let presentacionProducto = partes.slice(1).join(' - '); // Modelo/presentación (por si hay más de un guión)
 
             //2. Para que los valores ingresados sean los correctos
             if (parseInt(cantidad) > 0 && (cantidad % 1 == 0) && parseFloat(precioCompra) > 0) {
 
-                //3. No permitir el ingreso del mismo producto 
+                //3. No permitir el ingreso del mismo producto
                 if (!arrayIdProductos.includes(idProducto)) {
                     //Calcular valores
                     subtotal[cont] = round(cantidad * precioCompra);

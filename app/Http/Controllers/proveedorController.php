@@ -11,6 +11,7 @@ use App\Models\Proveedore;
 use App\Services\ActivityLogService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -24,12 +25,30 @@ class proveedorController extends Controller
         $this->middleware('permission:editar-proveedore', ['only' => ['edit', 'update']]);
         $this->middleware('permission:eliminar-proveedore', ['only' => ['destroy']]);
     }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $proveedores = Proveedore::with(['persona.documento', 'compras'])->latest()->get();
+        $query = Proveedore::with(['persona.documento', 'compras']);
+
+        // Filtro por tipo de persona
+        if ($request->has('tipo_persona') && $request->tipo_persona != '') {
+            $query->whereHas('persona', function($q) use ($request) {
+                $q->where('tipo', $request->tipo_persona);
+            });
+        }
+
+        // Filtro por estado
+        if ($request->has('estado') && $request->estado != '') {
+            $query->whereHas('persona', function($q) use ($request) {
+                $q->where('estado', $request->estado);
+            });
+        }
+
+        $proveedores = $query->latest()->get();
+
         return view('proveedore.index', compact('proveedores'));
     }
 

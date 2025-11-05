@@ -29,6 +29,10 @@
     .arrow-icon.rotated {
         transform: rotate(90deg);
     }
+    .filter-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+    }
 </style>
 @endpush
 
@@ -49,13 +53,66 @@
     </div>
     @endcan
 
+    <!-- Card de Filtros -->
+    <div class="card mb-4 filter-card">
+        <div class="card-header">
+            <i class="fas fa-filter me-1"></i>
+            Filtros de Búsqueda
+        </div>
+        <div class="card-body">
+            <form action="{{ route('proveedores.index') }}" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="tipo_persona" class="form-label">Tipo de Persona</label>
+                    <select class="form-select" id="tipo_persona" name="tipo_persona">
+                        <option value="">Todos los tipos</option>
+                        <option value="JURIDICA" {{ request('tipo_persona') == 'JURIDICA' ? 'selected' : '' }}>Jurídica</option>
+                        <option value="NATURAL" {{ request('tipo_persona') == 'NATURAL' ? 'selected' : '' }}>Natural</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="estado" class="form-label">Estado</label>
+                    <select class="form-select" id="estado" name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="1" {{ request('estado') == '1' ? 'selected' : '' }}>Activo</option>
+                        <option value="0" {{ request('estado') == '0' ? 'selected' : '' }}>Eliminado</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="btn-group" role="group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Buscar
+                        </button>
+                        <a href="{{ route('proveedores.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-undo me-1"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+            @if(request()->has('tipo_persona') || request()->has('estado'))
+            <div class="mt-3">
+                <small class="text-muted">
+                    <strong>Filtros aplicados:</strong>
+                    @if(request('tipo_persona'))
+                        Tipo: {{ request('tipo_persona') == 'JURIDICA' ? 'Jurídica' : 'Natural' }}
+                    @endif
+                    @if(request('estado'))
+                        {{ request('tipo_persona') ? ' | ' : '' }}
+                        Estado: {{ request('estado') == '1' ? 'Activo' : 'Eliminado' }}
+                    @endif
+                </small>
+            </div>
+            @endif
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
             Tabla proveedores
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped fs-6">
+            <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
                         <th></th>
@@ -155,7 +212,7 @@
                                     <i class="fas fa-shopping-cart me-2"></i>
                                     Compras de {{ $item->persona->razon_social }}
                                 </h6>
-                                
+
                                 @if($item->compras->count() > 0)
                                     <div class="table-responsive">
                                         <table class="table table-sm compras-table">
@@ -193,7 +250,7 @@
                                                 <small><strong>Total de compras:</strong> {{ $item->compras->count() }}</small>
                                             </div>
                                             <div class="col-md-6">
-                                                <small><strong>Monto total:</strong> 
+                                                <small><strong>Monto total:</strong>
                                                     <span class="text-success">Bs. {{ number_format($item->compras->sum('total'), 2) }}</span>
                                                 </small>
                                             </div>
@@ -247,7 +304,7 @@
 function toggleCompras(proveedorId) {
     const comprasRow = document.getElementById(`compras-${proveedorId}`);
     const arrowIcon = document.getElementById(`arrow-${proveedorId}`);
-    
+
     if (comprasRow.style.display === 'none') {
         comprasRow.style.display = 'table-row';
         arrowIcon.classList.add('rotated');

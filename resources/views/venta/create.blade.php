@@ -72,8 +72,8 @@
                                 id="metodo_pago"
                                 class="form-control selectpicker"
                                 title="Selecciona">
-                                @foreach ($optionsMetodoPago as $item)
-                                <option value="{{$item->value}}">{{$item->name}}</option>
+                                @foreach (App\Enums\MetodoPagoEnum::cases() as $metodo)
+                                <option value="{{ $metodo->value }}">{{ $metodo->name() }}</option>
                                 @endforeach
                             </select>
                             @error('metodo_pago')
@@ -96,11 +96,14 @@
                         <div class="col-12">
                             <select id="producto_id"
                                 class="form-control selectpicker"
-                                data-live-search="true" data-size="1"
-                                title="Busque un producto aquí">
+                                data-live-search="true"
+                                data-live-search-placeholder="Buscar producto..."
+                                data-size="10"
+                                data-show-subtext="true"
+                                title="Busque un producto aquí - Se muestran todos los productos disponibles">
                                 @foreach ($productos as $item)
-                                <option value="{{$item->id}}-{{$item->cantidad}}-{{$item->precio}}-{{$item->nombre}}-{{$item->sigla}}">
-                                    {{'Código: '. $item->codigo.' - '. $item->nombre.' - '.$item->sigla}}
+                                <option value="{{$item->id}}-{{$item->cantidad_stock}}-{{$item->precio}}-{{$item->nombre_simple}}-{{$item->modelo}}">
+                                    {{ $item->texto_select }}
                                 </option>
                                 @endforeach
                             </select>
@@ -286,10 +289,44 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 <script>
+    //Variables
+    let cont = 0;
+    let subtotal = [];
+    let sumas = 0;
+    let igv = 0;
+    let total = 0;
+    let arrayIdProductos = [];
+
+    //Constantes
+    const impuesto = @json($empresa->porcentaje_impuesto);
+
+    // Función para controlar el campo dinero_recibido según el método de pago
+    function controlarCampoDinero() {
+        let metodoPago = $('#metodo_pago').val();
+        let dineroRecibido = $('#dinero_recibido');
+        let vuelto = $('#vuelto');
+
+        if (metodoPago === 'QR') {
+            // Si es QR, llenar automáticamente con el total y deshabilitar
+            dineroRecibido.val(total > 0 ? total.toFixed(2) : '');
+            dineroRecibido.prop('readonly', true);
+            dineroRecibido.addClass('bg-light');
+            vuelto.val('0.00');
+        } else {
+            // Si es EFECTIVO, habilitar el campo
+            dineroRecibido.val('');
+            dineroRecibido.prop('readonly', false);
+            dineroRecibido.removeClass('bg-light');
+            vuelto.val('');
+        }
+    }
+
     $(document).ready(function() {
 
         $('#producto_id').change(mostrarValores);
 
+        // Inicializar el selectpicker de productos para mostrar todas las opciones
+        $('#producto_id').selectpicker('refresh');
 
         $('#btn_agregar').click(function() {
             agregarProducto();
@@ -297,6 +334,11 @@
 
         $('#btnCancelarVenta').click(function() {
             cancelarVenta();
+        });
+
+        // Controlar el campo dinero_recibido según el método de pago
+        $('#metodo_pago').change(function() {
+            controlarCampoDinero();
         });
 
         disableButtons();
@@ -308,22 +350,14 @@
                 let vuelto = dineroRecibido - total;
                 $('#vuelto').val(vuelto.toFixed(2));
             } else {
-                $('#vuelto').val(''); 
+                $('#vuelto').val('');
             }
         });
 
+        // Llamar a la función al cargar la página por si ya hay un método seleccionado
+        controlarCampoDinero();
+
     });
-
-    //Variables
-    let cont = 0;
-    let subtotal = [];
-    let sumas = 0;
-    let igv = 0;
-    let total = 0;
-    let arrayIdProductos = [];
-
-    //Constantes
-    const impuesto = @json($empresa->porcentaje_impuesto);
 
     function mostrarValores() {
         let dataProducto = document.getElementById('producto_id').value.split('-');
@@ -341,7 +375,7 @@
         let precioVenta = $('#precio').val();
         let stock = $('#stock').val();
 
-        //Validaciones 
+        //Validaciones
         //1.Para que los campos no esten vacíos
         if (idProducto != '' && cantidad != '') {
 
@@ -351,7 +385,7 @@
                 //3. Para que la cantidad no supere el stock
                 if (parseInt(cantidad) <= parseInt(stock)) {
 
-                    //4.No permitir el ingreso del mismo producto 
+                    //4.No permitir el ingreso del mismo producto
                     if (!arrayIdProductos.includes(idProducto)) {
 
                         //Calcular valores
@@ -386,6 +420,10 @@
 
                         //Agregar el id del producto al arreglo
                         arrayIdProductos.push(idProducto);
+
+                        // Actualizar el campo dinero_recibido si el método es QR
+                        controlarCampoDinero();
+
                     } else {
                         showModal('Ya ha ingresado el producto');
                     }
@@ -426,6 +464,9 @@
         arrayIdProductos.splice(index, 1);
 
         disableButtons();
+
+        // Actualizar el campo dinero_recibido si el método es QR
+        controlarCampoDinero();
     }
 
     function cancelarVenta() {
@@ -461,6 +502,9 @@
 
         limpiarCampos();
         disableButtons();
+
+        // Actualizar el campo dinero_recibido si el método es QR
+        controlarCampoDinero();
     }
 
     function disableButtons() {
@@ -471,6 +515,9 @@
             $('#guardar').show();
             $('#cancelar').show();
         }
+
+        // Actualizar el campo dinero_recibido si el método es QR
+        controlarCampoDinero();
     }
 
     function limpiarCampos() {
