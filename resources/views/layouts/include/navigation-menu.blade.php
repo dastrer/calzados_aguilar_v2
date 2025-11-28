@@ -1,11 +1,11 @@
 <div id="layoutSidenav_nav">
-    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+    <nav class="sb-sidenav accordion sb-sidenav-custom" id="sidenavAccordion">
         <div class="sb-sidenav-menu">
             <div class="nav">
 
                 <!-- ENCABEZADO: INICIO -->
                 <x-nav.heading>Inicio</x-nav.heading>
-                
+
                 <x-nav.nav-link content='Panel'
                     icon='fas fa-tachometer-alt'
                     :href="route('panel')" />

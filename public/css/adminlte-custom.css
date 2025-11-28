@@ -1,0 +1,236 @@
+/* === Variables base === */
+:root {
+  --primary-color: #1A2B4C;     /* Azul marino */
+  --accent-color: #D4AF37;      /* Dorado suave */
+  --background-light: #FAFAF5;  /* Beige claro */
+  --text-dark: #2C2C2C;
+  --text-light: #FFFFFF;
+}
+
+/* === Body & layout === */
+body {
+  background-color: var(--background-light);
+  color: var(--text-dark);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* === Sidebar === */
+.main-sidebar {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+}
+
+.main-sidebar a {
+  color: var(--text-light);
+}
+
+.main-sidebar a:hover {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+/* === Navbar === */
+.main-header {
+  background-color: var(--background-light);
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.navbar-nav .nav-link {
+  color: var(--primary-color);
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--accent-color);
+}
+
+/* === Footer === */
+.main-footer {
+  background-color: var(--background-light);
+  color: var(--primary-color);
+  border-top: 2px solid var(--accent-color);
+}
+
+/* === Buttons === */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-light);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+.btn-secondary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+}
+
+/* === Forms === */
+.form-control {
+  border: 1px solid var(--primary-color);
+  background-color: #FFFFFF;
+  color: var(--text-dark);
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+}
+
+/* === Badges === */
+.badge-primary {
+  background-color: var(--primary-color);
+}
+
+.badge-secondary {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+/* === Alerts === */
+.alert-primary {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border-color: var(--primary-color);
+}
+
+.alert-secondary {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+  border-color: var(--accent-color);
+}
+
+.sb-sidenav-custom {
+  background-color: #212B36; /* Gris azulado oscuro */
+  color: #D1D5DB;            /* Gris claro suave */
+}
+
+/* Encabezados de sección */
+.sb-sidenav-custom .sb-sidenav-menu-heading {
+  color: #A89F91; /* Dorado grisáceo apagado */
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  padding-top: 1rem;
+}
+
+/* Enlaces del menú */
+.sb-sidenav-custom .nav-link {
+  color: #D1D5DB;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sb-sidenav-custom .nav-link:hover {
+  background-color: #A89F91;
+  color: #212B36;
+}
+
+/* Íconos */
+.sb-sidenav-custom .nav-link i {
+  color: #A89F91;
+  margin-right: 0.5rem;
+}
+
+/* Submenús colapsables */
+.sb-sidenav-custom .collapse .nav-link {
+  background-color: #2A3642; /* Un tono más claro que el fondo */
+  color: #D1D5DB;
+}
+
+.sb-sidenav-custom .collapse .nav-link:hover {
+  background-color: #A89F91;
+  color: #212B36;
+}
+
+/* Footer del sidebar */
+.sb-sidenav-custom .sb-sidenav-footer {
+  background-color: #1C252E;
+  color: #A89F91;
+  border-top: 1px solid #A89F91;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+
+/* HEADEEEEEER */
+.navbar-custom-dark {
+  background-color: #1F2A38; /* Gris azulado oscuro */
+  color: #D1D5DB;
+  border-bottom: 1px solid #A89F91;
+}
+
+.navbar-custom-dark .navbar-brand {
+  color: #D1D5DB;
+  font-weight: 600;
+}
+
+.navbar-custom-dark .navbar-brand:hover {
+  color: #A89F91;
+}
+
+.navbar-custom-dark .nav-link {
+  color: #D1D5DB;
+}
+
+.navbar-custom-dark .nav-link:hover {
+  color: #A89F91;
+}
+
+.navbar-custom-dark .dropdown-menu {
+  background-color: #2A3642;
+  color: #D1D5DB;
+}
+
+.navbar-custom-dark .dropdown-item {
+  color: #D1D5DB;
+}
+
+.navbar-custom-dark .dropdown-item:hover {
+  background-color: #A89F91;
+  color: #1F2A38;
+}
+
+.navbar-custom-dark .form-control {
+  background-color: #2A3642;
+  border: 1px solid #A89F91;
+  color: #D1D5DB;
+}
+
+.navbar-custom-dark .btn-primary {
+  background-color: #A89F91;
+  border-color: #A89F91;
+  color: #1F2A38;
+}
+
+/* Foooteeeeer */
+.footer-custom-dark {
+  background-color: #1C252E; /* Gris oscuro profundo */
+  color: #A89F91;            /* Dorado grisáceo apagado */
+  border-top: 1px solid #2A3642;
+}
+
+.footer-custom-dark .footer-text {
+  color: #A89F91;
+  font-size: 0.85rem;
+}
+
+.footer-custom-dark .footer-links a {
+  color: #D1D5DB;
+  text-decoration: none;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.footer-custom-dark .footer-links a:hover {
+  color: #A89F91;
+}

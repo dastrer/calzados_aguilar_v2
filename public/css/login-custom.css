@@ -1,0 +1,38 @@
+.login-bg {
+    position: relative;
+    background: url('/images/fondo-calzados.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Fondo difuminado elegante */
+.login-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 1;
+}
+
+/* Tarjeta de login */
+.login-card {
+    position: relative;
+    z-index: 2;
+}
+
+/* Logo ampliado y con sombra sutil */
+.logo-preview {
+    height: 100px;
+    width: auto;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease-in-out;
+}

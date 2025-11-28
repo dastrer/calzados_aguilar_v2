@@ -9,10 +9,18 @@
     <meta name="author" content="SakCode" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Calzados Aguilar - @yield('title')</title>
+
     @stack('css-datatable')
-    <!--link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous"--->
+
+    <!-- Estilos base -->
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
+
+    <!-- Estilos personalizados para tienda de calzados elegantes -->
+    <link href="{{ asset('css/adminlte-custom.css') }}" rel="stylesheet" />
+
+    <!-- FontAwesome -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
     @stack('css')
 </head>
 
@@ -36,37 +44,40 @@
 
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-    <script src="{{ asset('js/scripts.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
 
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+
+    <!-- Scripts personalizados -->
+    <script src="{{ asset('js/scripts.js') }}"></script>
+
+    <!-- Notificaciones -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             const notificationIcon = document.getElementById('notificationsDropdown');
 
-            notificationIcon.addEventListener('click', function() {
+            notificationIcon.addEventListener('click', function () {
                 fetch("{{ route('notifications.markAsRead') }}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const badge = notificationIcon.querySelector('.badge');
-                            if (badge) badge.remove();
-                        }
-                    })
-                    .catch(error => console.error('Error al marcar notificaciones como leídas:', error));
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token']").getAttribute('content'),
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const badge = notificationIcon.querySelector('.badge');
+                        if (badge) badge.remove();
+                    }
+                })
+                .catch(error => console.error('Error al marcar notificaciones como leídas:', error));
             });
-
         });
     </script>
+
     @stack('js')
 
 </body>
-
-
 </html>
