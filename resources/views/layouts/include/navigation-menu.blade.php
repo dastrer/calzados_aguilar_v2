@@ -37,6 +37,13 @@
                 <!-- ENCABEZADO: COMERCIALIZACION -->
                 <x-nav.heading>Comercialización</x-nav.heading>
 
+                <!-- CATÁLOGO COMO PRIMER ÍTEM EN COMERCIALIZACIÓN -->
+                @can('ver-producto')
+                <x-nav.nav-link content='Catálogo'
+                    icon='fa-solid fa-store'
+                    :href="route('catalogo')" />
+                @endcan
+
                 @can('ver-cliente')
                 <x-nav.nav-link content='Clientes'
                     icon='fa-solid fa-users'

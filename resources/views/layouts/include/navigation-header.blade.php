@@ -13,13 +13,13 @@ $empresa = Empresa::first();
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Navbar Search-->
-    <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-        <div class="input-group">
-            <input name="search" class="form-control" type="text" placeholder="Buscar ...." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-            <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+    <!-- Hora local -->
+    <div class="ms-auto me-0 me-md-3 my-2 my-md-0 d-none d-md-block">
+        <div class="reloj-rectangular px-3 py-2">
+            <i class="fas fa-clock me-2"></i>
+            <span id="hora-actual" class="fw-bold"></span>
         </div>
-    </form>
+    </div>
 
     <!-- Notificaciones -->
     <div class="nav-item dropdown me-3">
@@ -65,3 +65,43 @@ $empresa = Empresa::first();
         </li>
     </ul>
 </nav>
+
+<style>
+.reloj-rectangular {
+    background-color: #1F2A38;
+    border: 1px solid #A89F91;
+    border-radius: 6px;
+    color: #D1D5DB;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.reloj-rectangular i {
+    color: #A89F91;
+    font-size: 0.9rem;
+}
+
+#hora-actual {
+    letter-spacing: 1px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function actualizarHora() {
+        const ahora = new Date();
+        const horas = ahora.getHours().toString().padStart(2, '0');
+        const minutos = ahora.getMinutes().toString().padStart(2, '0');
+        const segundos = ahora.getSeconds().toString().padStart(2, '0');
+        const horaFormateada = `${horas}:${minutos}:${segundos}`;
+        document.getElementById('hora-actual').textContent = horaFormateada;
+    }
+    
+    actualizarHora();
+    setInterval(actualizarHora, 1000);
+});
+</script>

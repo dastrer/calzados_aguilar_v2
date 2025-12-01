@@ -26,7 +26,7 @@ use App\Http\Controllers\userController;
 use App\Http\Controllers\ventaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB; // Agregar este use
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +40,9 @@ use Illuminate\Support\Facades\DB; // Agregar este use
 */
 
 Route::get('/', [homeController::class, 'index'])->name('panel');
+
+// RUTA PÚBLICA DEL CATÁLOGO - Solo visualización
+Route::get('/catalogo', [ProductoController::class, 'catalogo'])->name('catalogo');
 
 Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::resource('categorias', categoriaController::class)->except('show');
@@ -61,7 +64,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::resource('cajas', CajaController::class)->except('edit', 'update', 'show');
     Route::resource('movimientos', MovimientoController::class)->except('show', 'edit', 'update', 'destroy');
 
-    // Ruta para reubicar inventario - AGREGADA AQUÍ
+    // Ruta para reubicar inventario
     Route::put('/inventario/{inventario}/reubicar', [InventarioControlller::class, 'reubicar'])
         ->name('inventario.reubicar');
 
@@ -75,16 +78,16 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('/importar-excel-empleados', [ImportExcelController::class, 'importExcelEmpleados'])
         ->name('import.excel-empleados');
 
-    // Ruta para obtener compras por proveedor - AGREGADA AQUÍ
+    // Ruta para obtener compras por proveedor
     Route::get('/compras-por-proveedor/{proveedor}', function ($proveedorId) {
         $compras = DB::table('compras')
             ->where('proveedore_id', $proveedorId)
             ->select('id', 'fecha_hora', 'numero_comprobante', 'total', 'metodo_pago')
             ->orderBy('fecha_hora', 'desc')
             ->get();
-        
+
         $totalGeneral = $compras->sum('total');
-        
+
         return response()->json([
             'compras' => $compras,
             'total_general' => $totalGeneral

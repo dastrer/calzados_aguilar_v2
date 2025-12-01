@@ -12,6 +12,7 @@ use App\Services\ActivityLogService;
 use App\Services\ProductoService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -26,7 +27,10 @@ class ProductoController extends Controller
         $this->middleware('permission:crear-producto', ['only' => ['create', 'store']]);
         $this->middleware('permission:editar-producto', ['only' => ['edit', 'update']]);
         $this->middleware('permission:eliminar-producto', ['only' => ['destroy']]);
+        // El catálogo es público, no requiere permisos
+        // La funcionalidad de PDF ha sido eliminada
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -132,23 +136,43 @@ class ProductoController extends Controller
      */
     public function destroy(string $id)
     {
-        /*
-        $message = '';
-        $producto = Producto::find($id);
-        if ($producto->estado == 1) {
-            Producto::where('id', $producto->id)
-                ->update([
-                    'estado' => 0
-                ]);
-            $message = 'Producto eliminado';
-        } else {
-            Producto::where('id', $producto->id)
-                ->update([
-                    'estado' => 1
-                ]);
-            $message = 'Producto restaurado';
-        }
+        // Implementación de eliminación/restauración si se necesita en el futuro
+        // Por ahora se mantiene comentada
+    }
 
-        return redirect()->route('productos.index')->with('success', $message);*/
+    /**
+     * Display the product catalog.
+     */
+    public function catalogo(): View
+    {
+        try {
+            $productos = Producto::with([
+                'categoria.caracteristica',
+                'marca.caracteristica',
+                'presentacione.caracteristica',
+                'inventario' // Para mostrar información de stock
+            ])
+            ->where('estado', 1) // Solo productos activos
+            ->orderBy('nombre')
+            ->paginate(20);
+
+            // Registrar en el log de actividad solo si el usuario está autenticado
+            if (auth()->check()) {
+                ActivityLogService::log('Visualización del catálogo', 'Catálogo', [
+                    'total_productos' => $productos->total(),
+                    'pagina_actual' => $productos->currentPage()
+                ]);
+            }
+
+            return view('catalogo', compact('productos'));
+
+        } catch (Throwable $e) {
+            Log::error('Error al cargar el catálogo', ['error' => $e->getMessage()]);
+
+            // En caso de error, mostrar catálogo vacío con mensaje
+            $productos = collect();
+            return view('catalogo', compact('productos'))
+                ->with('error', 'Error al cargar el catálogo. Por favor, intente nuevamente.');
+        }
     }
 }

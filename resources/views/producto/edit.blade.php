@@ -21,35 +21,18 @@
         <li class="breadcrumb-item active">Editar producto</li>
     </ol>
 
-    <div class="card text-bg-light">
-        <form action="{{route('productos.update',['producto'=>$producto])}}" method="post" enctype="multipart/form-data">
+    <div class="card">
+        <form action="{{ route('productos.update',['producto'=>$producto]) }}" method="post" enctype="multipart/form-data">
             @method('PATCH')
             @csrf
-            <div class="card-body">
+            <div class="card-body text-bg-light">
 
                 <div class="row g-4">
-
-                    <!----Codigo---->
-                    <div class="col-md-6">
-                        <label for="codigo" class="form-label">Código:</label>
-                        <input type="text" name="codigo" id="codigo"
-                            class="form-control"
-                            value="{{old('codigo',$producto->codigo)}}">
-                        @error('codigo')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-
-                    
 
                     <!---Nombre---->
                     <div class="col-12">
                         <label for="nombre" class="form-label">Nombre:</label>
-                        <input type="text"
-                            name="nombre"
-                            id="nombre"
-                            class="form-control"
-                            value="{{old('nombre',$producto->nombre)}}">
+                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre',$producto->nombre)}}">
                         @error('nombre')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -58,11 +41,7 @@
                     <!---Descripción---->
                     <div class="col-12">
                         <label for="descripcion" class="form-label">Descripción:</label>
-                        <textarea
-                            name="descripcion"
-                            id="descripcion"
-                            rows="3"
-                            class="form-control">{{old('descripcion',$producto->descripcion)}}</textarea>
+                        <textarea name="descripcion" id="descripcion" rows="3" class="form-control">{{old('descripcion',$producto->descripcion)}}</textarea>
                         @error('descripcion')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -87,6 +66,15 @@
                                 @enderror
                             </div>
 
+                            <!----Codigo---->
+                            <div class="col-12">
+                                <label for="codigo" class="form-label">Código:</label>
+                                <input type="text" name="codigo" id="codigo" class="form-control" value="{{old('codigo',$producto->codigo)}}">
+                                @error('codigo')
+                                <small class="text-danger">{{'*'.$message}}</small>
+                                @enderror
+                            </div>
+
                             <!---Marca---->
                             <div class="col-12">
                                 <label for="marca_id" class="form-label">Marca:</label>
@@ -98,8 +86,7 @@
                                     class="form-control selectpicker show-tick">
                                     <option value="">No tiene marca</option>
                                     @foreach ($marcas as $item)
-                                    <option value="{{$item->id}}"
-                                        {{$producto->marca_id == $item->id || old('marca_id') == $item->id ? 'selected' : '' }}>
+                                    <option value="{{$item->id}}" {{ old('marca_id', $producto->marca_id) == $item->id ? 'selected' : '' }}>
                                         {{$item->nombre}}
                                     </option>
                                     @endforeach
@@ -111,16 +98,15 @@
 
                             <!---Presentaciones---->
                             <div class="col-12">
-                                <label for="presentacione_id" class="form-label">Presentación:</label>
+                                <label for="presentacione_id" class="form-label">Modelo:</label>
                                 <select data-size="4"
-                                    title="Seleccione una presentación"
+                                    title="Seleccione un modelo"
                                     data-live-search="true"
                                     name="presentacione_id"
                                     id="presentacione_id"
                                     class="form-control selectpicker show-tick">
                                     @foreach ($presentaciones as $item)
-                                    <option value="{{$item->id}}"
-                                        {{$producto->presentacione_id == $item->id || old('presentacione_id') == $item->id ? 'selected' : '' }}>
+                                    <option value="{{$item->id}}" {{ old('presentacione_id', $producto->presentacione_id) == $item->id ? 'selected' : '' }}>
                                         {{$item->nombre}}
                                     </option>
                                     @endforeach
@@ -130,7 +116,7 @@
                                 @enderror
                             </div>
 
-                            <!---Categoría---->
+                            <!---Categorías---->
                             <div class="col-12">
                                 <label for="categoria_id" class="form-label">Categoría:</label>
                                 <select data-size="4"
@@ -141,8 +127,7 @@
                                     class="form-control selectpicker show-tick">
                                     <option value="">No tiene categoría</option>
                                     @foreach ($categorias as $item)
-                                    <option value="{{$item->id}}"
-                                        {{ $producto->categoria_id == $item->id || old('categoria_id') == $item->id ? 'selected' : '' }}>
+                                    <option value="{{$item->id}}" {{ old('categoria_id', $producto->categoria_id) == $item->id ? 'selected' : '' }}>
                                         {{$item->nombre}}
                                     </option>
                                     @endforeach
@@ -154,7 +139,6 @@
                         </div>
 
                     </div>
-
                     <div class="col-md-6">
                         <p>Imagen del producto:</p>
 
@@ -166,19 +150,18 @@
                         <img src="" alt="Ha cargado un archivo no compatible"
                             id="img-preview"
                             class="img-fluid img-thumbnail" style="display: none;">
+
                     </div>
 
                 </div>
-
             </div>
+
             <div class="card-footer text-center">
                 <button type="submit" class="btn btn-primary">Guardar</button>
                 <button type="reset" class="btn btn-secondary">Reiniciar</button>
             </div>
         </form>
     </div>
-
-
 
 </div>
 @endsection
