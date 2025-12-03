@@ -10,7 +10,7 @@
     <!-- Bootstrap & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script> <!-- Reemplaza con tu kit de FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
@@ -132,6 +132,174 @@
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Sección del Catálogo - RESPONSIVE */
+        .catalog-section {
+            background: rgba(26, 43, 76, 0.7);
+            border-radius: 15px;
+            padding: 3rem;
+            margin: 2rem auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(191, 174, 128, 0.3);
+        }
+
+        .product-preview-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(191, 174, 128, 0.2);
+        }
+
+        .product-preview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--aguilar-accent);
+        }
+
+        .product-preview-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 2px solid rgba(191, 174, 128, 0.2);
+        }
+
+        .product-preview-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #28a745;
+            margin: 0.5rem 0;
+        }
+
+        .btn-view-catalog {
+            background: linear-gradient(135deg, var(--aguilar-primary), #2c3e50);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view-catalog:hover {
+            background: linear-gradient(135deg, var(--aguilar-accent), #D4AF37);
+            color: var(--aguilar-primary);
+            transform: translateY(-2px);
+        }
+
+        .loading-catalog {
+            text-align: center;
+            padding: 2rem;
+            color: var(--aguilar-accent);
+        }
+
+        /* Media Queries para Responsividad - SOLO CATÁLOGO */
+        @media (max-width: 1200px) {
+            .catalog-section {
+                padding: 2.5rem;
+            }
+
+            .product-preview-image {
+                height: 160px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .catalog-section {
+                padding: 2rem;
+                margin: 1.5rem auto;
+            }
+
+            .product-preview-card {
+                padding: 1.25rem;
+            }
+
+            .product-preview-image {
+                height: 150px;
+            }
+
+            .product-preview-price {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .catalog-section {
+                padding: 1.5rem;
+                margin: 1rem auto;
+                border-radius: 12px;
+            }
+
+            .product-preview-card {
+                padding: 1rem;
+            }
+
+            .product-preview-image {
+                height: 140px;
+            }
+
+            .product-preview-price {
+                font-size: 1.1rem;
+            }
+
+            .btn-view-catalog {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .catalog-section {
+                padding: 1rem;
+                margin: 0.75rem auto;
+            }
+
+            .product-preview-card {
+                padding: 0.75rem;
+            }
+
+            .product-preview-image {
+                height: 120px;
+                margin-bottom: 0.75rem;
+            }
+
+            .product-preview-price {
+                font-size: 1rem;
+                margin: 0.4rem 0;
+            }
+
+            .product-preview-card h6 {
+                font-size: 0.95rem;
+                min-height: 40px;
+            }
+
+            .btn-view-catalog {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            #productCountText {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .product-preview-image {
+                height: 100px;
+            }
+
+            .product-preview-card h6 {
+                font-size: 0.9rem;
+                min-height: 35px;
+            }
+
+            .product-preview-card small {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 
@@ -159,6 +327,31 @@
             <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
         </a>
     </div>
+
+    <!-- Sección del Catálogo -->
+    <section class="section text-center">
+        <div class="container">
+            <div class="catalog-section">
+                <h2>Nuestro Catálogo de Calzados</h2>
+                <p class="mb-4">Descubre nuestra colección de calzados de calidad para toda la familia</p>
+
+                <!-- Contenedor para productos del catálogo -->
+                <div class="row mt-4 g-4" id="catalogPreviewContainer">
+                    <div class="loading-catalog">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Cargando catálogo...</p>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <a href="{{ route('catalogo.publico') }}" class="btn-view-catalog">
+                        <i class="fas fa-eye me-2"></i> Ver Catálogo Completo
+                    </a>
+                    <p class="text-muted mt-2" id="productCountText">0+ calzados disponibles</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Beneficios -->
     <section class="section text-center">
@@ -194,9 +387,108 @@
 
     <!-- Footer -->
     <footer>
-        Est. Juan Pablo Ramirez Aguilar – Sistemas Informáticos
+        <div class="container">
+            <p class="mb-0">Est. Juan Pablo Ramirez Aguilar – Sistemas Informáticos</p>
+            <p class="mb-0 mt-2">
+                <a href="{{ route('catalogo.publico') }}" class="text-light text-decoration-none">
+                    <i class="fas fa-shoe-prints me-1"></i> Ver catálogo de calzados
+                </a>
+            </p>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarCatalogoPreview();
+
+            function cargarCatalogoPreview() {
+                const container = document.getElementById('catalogPreviewContainer');
+                const productCountText = document.getElementById('productCountText');
+
+                fetch('/catalogo-publico?limit=4&_=' + new Date().getTime(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.productos && data.productos.length > 0) {
+                        // Actualizar contador
+                        productCountText.textContent = data.total + '+ calzados disponibles';
+
+                        // Generar las tarjetas de productos
+                        let html = '';
+                        data.productos.forEach(producto => {
+                            html += `
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="product-preview-card">
+                                        <img src="${producto.img_path}"
+                                             alt="${producto.nombre}"
+                                             class="product-preview-image"
+                                             onerror="this.src='{{ asset('assets/img/calzado-default.png') }}'">
+                                        <h6 class="text-light" style="min-height: 50px;">${producto.nombre.substring(0, 40)}${producto.nombre.length > 40 ? '...' : ''}</h6>
+                                        <div class="product-preview-price">
+                                            ${producto.precio_formatted}
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-tag me-1"></i> ${producto.marca_nombre}
+                                        </small>
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="fas fa-folder me-1"></i> ${producto.categoria_nombre}
+                                        </small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        container.innerHTML = html;
+                    } else {
+                        mostrarMensajeSinProductos();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarMensajeError();
+                });
+            }
+
+            function mostrarMensajeSinProductos() {
+                const container = document.getElementById('catalogPreviewContainer');
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="text-center py-4">
+                            <i class="fas fa-shoe-prints fa-3x text-muted mb-3"></i>
+                            <h5 class="text-light">Próximamente</h5>
+                            <p class="text-muted">Estamos preparando nuestro catálogo de calzados.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function mostrarMensajeError() {
+                const container = document.getElementById('catalogPreviewContainer');
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="text-center py-4">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h5 class="text-light">Error al cargar</h5>
+                            <p class="text-muted">No se pudo cargar el catálogo en este momento.</p>
+                            <a href="{{ route('catalogo.publico') }}" class="btn btn-sm btn-outline-warning mt-2">
+                                Intentar ver catálogo completo
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>

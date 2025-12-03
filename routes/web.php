@@ -41,9 +41,17 @@ use Illuminate\Support\Facades\DB;
 
 Route::get('/', [homeController::class, 'index'])->name('panel');
 
-// RUTA PÚBLICA DEL CATÁLOGO - Solo visualización
+// RUTAS PÚBLICAS DEL CATÁLOGO (SIN AUTENTICACIÓN) - SOLO AGREGADAS
+// Catálogo público - visualización completa
+Route::get('/catalogo-publico', [ProductoController::class, 'catalogoPublico'])->name('catalogo.publico');
+
+// Búsqueda en catálogo público
+Route::get('/catalogo-publico/buscar', [ProductoController::class, 'catalogoPublicoBuscar'])->name('catalogo.publico.buscar');
+
+// RUTA PÚBLICA DEL CATÁLOGO ORIGINAL - Solo visualización (MANTENIDA)
 Route::get('/catalogo', [ProductoController::class, 'catalogo'])->name('catalogo');
 
+// RUTAS QUE REQUIEREN AUTENTICACIÓN (GRUPO ORIGINAL - SIN CAMBIOS)
 Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::resource('categorias', categoriaController::class)->except('show');
     Route::resource('presentaciones', presentacioneController::class)->except('show');
@@ -102,5 +110,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::get('/logout', [logoutController::class, 'logout'])->name('logout');
 });
 
+// LOGIN (RUTAS ORIGINALES - SIN CAMBIOS)
 Route::get('/login', [loginController::class, 'index'])->name('login.index');
 Route::post('/login', [loginController::class, 'login'])->name('login.login');

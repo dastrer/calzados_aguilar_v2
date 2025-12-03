@@ -13,6 +13,7 @@ use App\Services\ProductoService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -28,7 +29,6 @@ class ProductoController extends Controller
         $this->middleware('permission:editar-producto', ['only' => ['edit', 'update']]);
         $this->middleware('permission:eliminar-producto', ['only' => ['destroy']]);
         // El catálogo es público, no requiere permisos
-        // La funcionalidad de PDF ha sido eliminada
     }
 
     /**
@@ -141,7 +141,7 @@ class ProductoController extends Controller
     }
 
     /**
-     * Display the product catalog.
+     * Display the product catalog (administrative - requires authentication).
      */
     public function catalogo(): View
     {
@@ -150,13 +150,12 @@ class ProductoController extends Controller
                 'categoria.caracteristica',
                 'marca.caracteristica',
                 'presentacione.caracteristica',
-                'inventario' // Para mostrar información de stock
+                'inventario'
             ])
-            ->where('estado', 1) // Solo productos activos
+            ->where('estado', 1)
             ->orderBy('nombre')
             ->paginate(20);
 
-            // Registrar en el log de actividad solo si el usuario está autenticado
             if (auth()->check()) {
                 ActivityLogService::log('Visualización del catálogo', 'Catálogo', [
                     'total_productos' => $productos->total(),
@@ -168,11 +167,127 @@ class ProductoController extends Controller
 
         } catch (Throwable $e) {
             Log::error('Error al cargar el catálogo', ['error' => $e->getMessage()]);
-
-            // En caso de error, mostrar catálogo vacío con mensaje
             $productos = collect();
             return view('catalogo', compact('productos'))
                 ->with('error', 'Error al cargar el catálogo. Por favor, intente nuevamente.');
+        }
+    }
+
+    /**
+     * Mostrar el catálogo público de productos (solo visualización)
+     */
+    public function catalogoPublico(Request $request)
+    {
+        try {
+            // Query base para productos activos
+            $query = Producto::with([
+                'marca.caracteristica',
+                'categoria.caracteristica',
+                'presentacione.caracteristica'
+            ])
+            ->where('estado', 1);
+
+            // Si es una petición AJAX para el preview (desde welcome)
+            if ($request->ajax() || $request->has('limit')) {
+                $limit = $request->input('limit', 4);
+                $query->limit($limit);
+
+                $productos = $query->orderBy('created_at', 'desc')->get();
+
+                $productosData = $productos->map(function ($producto) {
+                    return [
+                        'id' => $producto->id,
+                        'nombre' => $producto->nombre,
+                        'precio' => $producto->precio,
+                        'precio_formatted' => $producto->precio ? 'Bs. ' . number_format($producto->precio, 2) : 'Consultar precio',
+                        'img_path' => $producto->img_path ? asset($producto->img_path) : asset('assets/img/calzado-default.png'),
+                        'descripcion' => $producto->descripcion,
+                        'codigo' => $producto->codigo,
+                        'estado' => $producto->estado,
+                        'marca_nombre' => $producto->marca && $producto->marca->caracteristica
+                            ? $producto->marca->caracteristica->nombre
+                            : 'Sin marca',
+                        'categoria_nombre' => $producto->categoria && $producto->categoria->caracteristica
+                            ? $producto->categoria->caracteristica->nombre
+                            : 'Sin categoría',
+                        'presentacion_nombre' => $producto->presentacione && $producto->presentacione->caracteristica
+                            ? $producto->presentacione->caracteristica->nombre
+                            : 'Sin presentación'
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'productos' => $productosData,
+                    'total' => $productosData->count()
+                ]);
+            }
+
+            // Paginación normal para la vista completa
+            $productos = $query->orderBy('created_at', 'desc')->paginate(12);
+
+            return view('catalogo_publico', compact('productos'));
+
+        } catch (\Exception $e) {
+            Log::error('Error al cargar catálogo público: ' . $e->getMessage());
+
+            if ($request->ajax() || $request->has('limit')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al cargar el catálogo',
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            $productos = Producto::where('estado', 1)->paginate(12);
+            return view('catalogo_publico', compact('productos'))
+                ->with('error', 'Lo sentimos, hubo un problema al cargar el catálogo.');
+        }
+    }
+
+    /**
+     * Búsqueda en el catálogo público
+     */
+    public function catalogoPublicoBuscar(Request $request)
+    {
+        $request->validate([
+            'busqueda' => 'nullable|string|max:100'
+        ]);
+
+        try {
+            $query = Producto::with([
+                'marca.caracteristica',
+                'categoria.caracteristica',
+                'presentacione.caracteristica'
+            ])
+            ->where('estado', 1);
+
+            if ($request->has('busqueda') && !empty($request->busqueda)) {
+                $busqueda = $request->busqueda;
+                $query->where(function($q) use ($busqueda) {
+                    $q->where('nombre', 'LIKE', "%{$busqueda}%")
+                      ->orWhere('codigo', 'LIKE', "%{$busqueda}%")
+                      ->orWhere('descripcion', 'LIKE', "%{$busqueda}%")
+                      ->orWhereHas('marca.caracteristica', function($q) use ($busqueda) {
+                          $q->where('nombre', 'LIKE', "%{$busqueda}%");
+                      })
+                      ->orWhereHas('categoria.caracteristica', function($q) use ($busqueda) {
+                          $q->where('nombre', 'LIKE', "%{$busqueda}%");
+                      });
+                });
+            }
+
+            $productos = $query->orderBy('created_at', 'desc')->paginate(12);
+
+            return view('catalogo_publico', [
+                'productos' => $productos,
+                'busqueda' => $request->busqueda ?? ''
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en búsqueda de catálogo público: ' . $e->getMessage());
+            return redirect()->route('catalogo.publico')
+                ->with('error', 'Error en la búsqueda. Por favor, intenta nuevamente.');
         }
     }
 }
