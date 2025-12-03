@@ -183,7 +183,7 @@
         function mostrarError(campoId, mensaje) {
             const campo = $('#' + campoId);
             const errorDiv = $('#' + campoId + '-error');
-            
+
             campo.addClass('is-invalid');
             errorDiv.text(mensaje).show();
         }
@@ -192,7 +192,7 @@
         function limpiarError(campoId) {
             const campo = $('#' + campoId);
             const errorDiv = $('#' + campoId + '-error');
-            
+
             campo.removeClass('is-invalid');
             errorDiv.text('').hide();
         }
@@ -200,27 +200,27 @@
         // Función para validar teléfono
         function validarTelefono(telefono) {
             if (!telefono) return null; // No es obligatorio
-            
+
             telefono = telefono.replace(/\s/g, '');
-            
+
             // Validar formato internacional (con +)
             if (telefono.startsWith('+')) {
                 const parteNumerica = telefono.substring(1);
-                
+
                 // Verificar que después del + solo haya números
                 if (!/^\d+$/.test(parteNumerica)) {
                     return 'Después del + solo se permiten números';
                 }
-                
+
                 // Verificar longitud (máximo 12 dígitos después del +)
                 if (parteNumerica.length > 12) {
                     return 'Máximo 12 dígitos después del +';
                 }
-                
+
                 if (parteNumerica.length < 1) {
                     return 'Debe haber al menos 1 dígito después del +';
                 }
-                
+
                 return null; // Válido
             }
             // Validar formato nacional (sin +)
@@ -229,18 +229,18 @@
                 if (!/^\d+$/.test(telefono)) {
                     return 'Solo se permiten números para formato nacional';
                 }
-                
+
                 // Verificar longitud exacta de 8 dígitos
                 if (telefono.length !== 8) {
                     return 'El teléfono nacional debe tener exactamente 8 dígitos';
                 }
-                
+
                 // Verificar que empiece con 6, 7 o 2
                 const primerDigito = telefono.charAt(0);
                 if (!['6', '7', '2'].includes(primerDigito)) {
                     return 'El teléfono nacional debe comenzar con 6, 7 o 2';
                 }
-                
+
                 return null; // Válido
             }
         }
@@ -263,7 +263,7 @@
         // Manejar cambio de tipo de proveedor
         $('#tipo').on('change', function() {
             let selectValue = $(this).val();
-            
+
             if (selectValue == 'NATURAL') {
                 $('#box-razon-social').hide();
                 $('#box-nombre-completo').show();
@@ -282,7 +282,7 @@
         // Manejar cambio de tipo de documento
         $('#documento_id').on('change', function() {
             esCI = ($(this).val() == '1');
-            
+
             if (esCI) {
                 $('#box-complemento').show();
                 $('#box-numero-documento').removeClass('col-md-6').addClass('col-md-3');
@@ -293,20 +293,73 @@
         });
 
         // Validación y formateo de teléfono en tiempo real
-        $('#telefono').on('input', function() {
-            let value = $(this).val().replace(/\s/g, '');
-            
-            if (value.startsWith('+')) {
-                if (value.length > 13) value = value.slice(0, 13);
-            } else {
-                value = value.replace(/\+/g, '');
-                if (value.length > 8) value = value.slice(0, 8);
-            }
-            
-            $(this).val(value);
-            limpiarError('telefono');
-        });
+        // Validación y formateo de teléfono en tiempo real - SOLO NÚMEROS Y +
+$('#telefono').on('input', function() {
+    let value = $(this).val();
 
+    // Permitir solo números y el signo + (solo al inicio)
+    if (value.startsWith('+')) {
+        // Si empieza con +, permitir números después
+        value = '+' + value.substring(1).replace(/[^0-9]/g, '');
+    } else {
+        // Si no empieza con +, permitir solo números
+        value = value.replace(/[^0-9]/g, '');
+    }
+
+    // Aplicar límites de longitud
+    if (value.startsWith('+')) {
+        if (value.length > 13) value = value.slice(0, 13); // + y máximo 12 dígitos
+    } else {
+        if (value.length > 8) value = value.slice(0, 8); // máximo 8 dígitos
+    }
+
+    $(this).val(value);
+    limpiarError('telefono');
+});
+
+// Prevenir entrada de caracteres no permitidos
+$('#telefono').on('keydown', function(e) {
+    const key = e.key;
+    const value = $(this).val();
+
+    // Permitir teclas de control (backspace, delete, tab, etc.)
+    if (e.ctrlKey || e.altKey || key === 'Backspace' || key === 'Delete' || key === 'Tab' || key === 'ArrowLeft' || key === 'ArrowRight') {
+        return true;
+    }
+
+    // Si ya hay un +, solo permitir números
+    if (value.startsWith('+')) {
+        if (!/^\d$/.test(key)) {
+            e.preventDefault();
+            return false;
+        }
+    }
+    // Si no hay + aún, permitir números o + (solo si está al inicio)
+    else {
+        if (value === '' && key === '+') {
+            return true; // Permitir + solo al inicio cuando el campo está vacío
+        }
+        if (!/^\d$/.test(key)) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
+
+// Validación de teléfono en tiempo real al perder foco
+$('#telefono').on('blur', function() {
+    const telefono = $(this).val();
+    if (telefono) {
+        const error = validarTelefono(telefono);
+        if (error) {
+            mostrarError('telefono', error);
+        } else {
+            limpiarError('telefono');
+        }
+    } else {
+        limpiarError('telefono');
+    }
+});
         // Validación de teléfono en tiempo real al perder foco
         $('#telefono').on('blur', function() {
             const telefono = $(this).val();
@@ -330,7 +383,7 @@
         // Función para validar dirección
         function validarDireccion() {
             const direccion = $('#direccion').val().trim();
-            
+
             if (!direccion) {
                 mostrarError('direccion', 'La dirección es obligatoria');
                 return false;
@@ -403,7 +456,7 @@
             } else if (tipoProveedor === 'NATURAL') {
                 const nombres = $('#nombres').val();
                 const apellidoPaterno = $('#apellido_paterno').val();
-                
+
                 if (!nombres.trim()) {
                     hayError = true;
                     errores.push('• El nombre es obligatorio para persona natural');
@@ -411,7 +464,7 @@
                 } else {
                     $('#nombres').removeClass('is-invalid');
                 }
-                
+
                 if (!apellidoPaterno.trim()) {
                     hayError = true;
                     errores.push('• El apellido paterno es obligatorio para persona natural');
@@ -423,11 +476,11 @@
 
             if (hayError) {
                 e.preventDefault();
-                
+
                 // Crear mensaje de error formateado
                 let mensajeError = 'Por favor corrija los siguientes errores:\n\n';
                 mensajeError += errores.join('\n');
-                
+
                 // Mostrar SweetAlert2
                 mostrarNotificacionError(mensajeError);
                 return false;
@@ -437,33 +490,33 @@
             const numero = $('#numero_documento').val();
             const complemento = $('#complemento').val();
             const telefonoFormateado = $('#telefono').val();
-            
+
             // Preparar número de documento completo para CI
             if (esCI && complemento) {
                 $('#numero_documento').val(numero + '-' + complemento.toUpperCase());
             }
-            
+
             // Formatear teléfono (eliminar espacios) antes de enviar
             if (telefonoFormateado) {
                 $('#telefono').val(telefonoFormateado.replace(/\s/g, ''));
             }
-            
+
             // UNIR CAMPOS PARA PERSONA NATURAL
             if (tipoProveedor === 'NATURAL') {
                 const nombres = $('#nombres').val().trim();
                 const apellidoPaterno = $('#apellido_paterno').val().trim();
                 const apellidoMaterno = $('#apellido_materno').val().trim();
-                
+
                 // Unir los campos en razon_social
                 let razonSocialCompleta = nombres + ' ' + apellidoPaterno;
                 if (apellidoMaterno) {
                     razonSocialCompleta += ' ' + apellidoMaterno;
                 }
-                
+
                 // Asignar al campo razon_social que es el que espera el backend
                 $('#razon_social').val(razonSocialCompleta);
             }
-            
+
             return true;
         });
 
@@ -480,7 +533,7 @@
 
         // Inicializar
         $('#tipo').trigger('change');
-        
+
         @if(old('documento_id'))
             esCI = ("{{ old('documento_id') }}" == '1');
             if (esCI) {

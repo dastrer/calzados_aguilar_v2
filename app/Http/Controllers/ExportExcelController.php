@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\DownloadExcelVentasAllJob;
-use Illuminate\Http\RedirectResponse;
+use App\Exports\VentasExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 
 class ExportExcelController extends Controller
@@ -11,11 +11,17 @@ class ExportExcelController extends Controller
     /**
      * Exportar en EXCEL todas las ventas
      */
-    public function exportExcelVentasAll(): RedirectResponse
+    public function exportExcelVentasAll()
     {
-        $filename = 'ventas_' . now()->format('Y_m_d_His') . '.xlsx';
-        DownloadExcelVentasAllJob::dispatch($filename, Auth::id());
+        try {
+            $filename = 'ventas_' . now()->format('Y_m_d_His') . '.xlsx';
 
-        return redirect()->route('ventas.index')->with('success', 'Procesando descarga');
+            // Descarga inmediata
+            return Excel::download(new VentasExport(), $filename);
+
+        } catch (\Exception $e) {
+            return redirect()->route('ventas.index')
+                ->with('error', 'Error al generar Excel: ' . $e->getMessage());
+        }
     }
 }

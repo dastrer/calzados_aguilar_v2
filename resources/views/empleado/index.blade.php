@@ -45,7 +45,7 @@
                         <th>Nombres</th>
                         <th>Apellido Paterno</th>
                         <th>Apellido Materno</th>
-                        <th>Contacto</th> 
+                        <th>Contacto</th>
                         <th>Dirección</th>
                         <th>Cargo</th>
                         <th>Imagen</th>
@@ -64,13 +64,13 @@
                         <td>
                             {{$item->apellido_materno}}
                         </td>
-                        
+
                         <td>
                             Correo: {{$item->correo}}
                             <br>
-                            Teléfono: {{$item->telefono ?? 'N/A'}} 
+                            Teléfono: {{$item->telefono ?? 'N/A'}}
                         </td>
-                        
+
                         <td>
                             {{$item->direccion ?? 'Sin registrar'}}
                         </td>
@@ -148,21 +148,7 @@
             </table>
 
         </div>
-        <div class="card-footer">
-            <form action="{{ route('import.excel-empleados') }}"
-                method="post" enctype="multipart/form-data"
-                class="mb-3">
-                @csrf
-                <div class="mb-3">
-                    <label for="file" class="form-label">
-                        Subir archivo:</label>
-                    <input type="file" name="file" id="file"
-                        class="form-control">
-                </div>
-                <button type="submit" class="btn btn-success">
-                    Importar datos</button>
-            </form>
-        </div>
+        <!-- Sección de importación ocultada completamente -->
     </div>
 
 </div>
