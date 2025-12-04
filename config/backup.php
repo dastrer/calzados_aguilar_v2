@@ -3,7 +3,7 @@
 return [
 
     'backup' => [
-        'name' => env('APP_NAME', 'calzados_aguilar'),
+        'name' => env('APP_NAME', 'calzadosaguilar'),
 
         'source' => [
             'files' => [
@@ -13,7 +13,7 @@ return [
                 'exclude' => [
                     base_path('vendor'),
                     base_path('node_modules'),
-                    storage_path('app/backups'),
+                    //storage_path('app/backups'),
                     storage_path('logs'),
                     storage_path('framework/cache'),
                     storage_path('framework/sessions'),
@@ -31,7 +31,7 @@ return [
         'database_dump_compressor' => null,
         'database_dump_file_timestamp_format' => 'Y-m-d-H-i-s',
         'database_dump_filename_base' => 'database',
-        'database_dump_file_extension' => '',
+        'database_dump_file_extension' => 'sql',
 
         'destination' => [
             'compression_method' => defined('ZipArchive::CM_DEFAULT') ? ZipArchive::CM_DEFAULT : 0,
@@ -83,7 +83,7 @@ return [
      */
     'monitor_backups' => [
         [
-            'name' => env('APP_NAME', 'calzados_aguilar'),
+            'name' => env('APP_NAME', 'calzadosaguilar'),
             'disks' => ['local'],
             'health_checks' => [
                 \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class => 1,

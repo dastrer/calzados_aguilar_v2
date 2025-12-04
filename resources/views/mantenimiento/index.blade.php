@@ -50,6 +50,50 @@
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
     }
+    .border-purple {
+        border-color: #6f42c1 !important;
+    }
+    .btn-outline-purple {
+        color: #6f42c1;
+        border-color: #6f42c1;
+    }
+    .btn-outline-purple:hover {
+        background-color: #6f42c1;
+        color: white;
+    }
+    .border-pink {
+        border-color: #e83e8c !important;
+    }
+    .btn-outline-pink {
+        color: #e83e8c;
+        border-color: #e83e8c;
+    }
+    .btn-outline-pink:hover {
+        background-color: #e83e8c;
+        color: white;
+    }
+    .border-teal {
+        border-color: #20c997 !important;
+    }
+    .btn-outline-teal {
+        color: #20c997;
+        border-color: #20c997;
+    }
+    .btn-outline-teal:hover {
+        background-color: #20c997;
+        color: white;
+    }
+    .border-orange {
+        border-color: #fd7e14 !important;
+    }
+    .btn-outline-orange {
+        color: #fd7e14;
+        border-color: #fd7e14;
+    }
+    .btn-outline-orange:hover {
+        background-color: #fd7e14;
+        color: white;
+    }
 </style>
 @endpush
 
@@ -63,14 +107,14 @@
     </ol>
 
     <!-- Botones de Ayuda -->
-<div class="mb-4">
-    <button type="button" class="btn btn-primary" onclick="showBenefits()">
-        <i class="fas fa-info-circle me-1"></i>Ver Beneficios
-    </button>
-    <button type="button" class="btn btn-secondary ms-2" onclick="showUsageGuide()">
-        <i class="fas fa-question-circle me-1"></i>Guía de Uso
-    </button>
-</div>
+    <div class="mb-4">
+        <button type="button" class="btn btn-primary" onclick="showBenefits()">
+            <i class="fas fa-info-circle me-1"></i>Ver Beneficios
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" onclick="showUsageGuide()">
+            <i class="fas fa-question-circle me-1"></i>Guía de Uso
+        </button>
+    </div>
 
     <!-- Advertencia -->
     <div class="alert alert-warning mb-4">
@@ -405,8 +449,7 @@ const actionRoutes = {
     'fullMaintenance': '{{ route("mantenimiento.fullMaintenance") }}',
     'clearImageCache': '{{ route("mantenimiento.clearImageCache") }}',
     'clearEventCache': '{{ route("mantenimiento.clearEventCache") }}',
-    'clearPackageCache': '{{ route("mantenimiento.clearPackageCache") }}',
-    'clearServiceCache': '{{ route("mantenimiento.clearServiceCache") }}'
+    'clearPackageCache': '{{ route("mantenimiento.clearPackageCache") }}'
 };
 
 // Obtener estado del sistema al cargar
@@ -534,36 +577,40 @@ function showUsageGuide() {
 // Mostrar ayuda específica para cada acción
 function showActionHelp(action) {
     const helpMessages = {
-        'fullMaintenance': {
-            title: '⚙️ MANTENIMIENTO COMPLETO',
-            html: `
-                <div style="text-align: left;">
-                    <h5 style="color: #dc3545;">¿Qué hace?</h5>
-                    <p>Ejecuta <strong>todas las tareas de mantenimiento</strong> en secuencia automáticamente.</p>
+        // En la parte de helpMessages, actualiza el fullMaintenance:
+'fullMaintenance': {
+    title: '⚙️ MANTENIMIENTO COMPLETO',
+    html: `
+        <div style="text-align: left;">
+            <h5 style="color: #dc3545;">¿Qué hace?</h5>
+            <p>Ejecuta <strong>todas las tareas de mantenimiento</strong> en secuencia automáticamente.</p>
 
-                    <h5 style="color: #ffc107;">Comandos que ejecuta:</h5>
-                    <ul>
-                        <li>cache:clear - Limpia cache de aplicación</li>
-                        <li>config:clear - Limpia configuración</li>
-                        <li>view:clear - Limpia vistas Blade</li>
-                        <li>route:clear - Limpia rutas</li>
-                        <li>optimize:clear - Optimización general</li>
-                        <li>session:clear - Limpia sesiones</li>
-                    </ul>
+            <h5 style="color: #ffc107;">Tareas que ejecuta:</h5>
+            <ul>
+                <li>cache:clear - Limpia cache de aplicación</li>
+                <li>config:clear - Limpia configuración</li>
+                <li>view:clear - Limpia vistas Blade</li>
+                <li>route:clear - Limpia rutas</li>
+                <li>optimize:clear - Optimización general</li>
+                <li>Limpia archivos de sesión manualmente</li>
+                <li>Vacía archivos de logs</li>
+                <li>Limpia cache de imágenes</li>
+                <li>Limpia vistas compiladas</li>
+            </ul>
 
-                    <h5 style="color: #28a745;">Impacto:</h5>
-                    <p><strong>🟡 Temporal</strong> - El sistema puede ser más lento por 10-30 segundos</p>
-                    <p><strong>✅ Beneficio:</strong> Sistema completamente optimizado</p>
+            <h5 style="color: #28a745;">Impacto:</h5>
+            <p><strong>🟡 Temporal</strong> - El sistema puede ser más lento por 10-30 segundos</p>
+            <p><strong>✅ Beneficio:</strong> Sistema completamente optimizado</p>
 
-                    <h5 style="color: #17a2b8;">Frecuencia recomendada:</h5>
-                    <p><strong>📅 Mensualmente</strong> o cuando notes el sistema lento</p>
+            <h5 style="color: #17a2b8;">Frecuencia recomendada:</h5>
+            <p><strong>📅 Mensualmente</strong> o cuando notes el sistema lento</p>
 
-                    <div class="alert alert-warning mt-3">
-                        <strong>⚠️ Advertencia:</strong> Usuarios activos serán desconectados temporalmente.
-                    </div>
-                </div>
-            `
-        },
+            <div class="alert alert-warning mt-3">
+                <strong>⚠️ Advertencia:</strong> Usuarios activos serán desconectados temporalmente.
+            </div>
+        </div>
+    `
+},
         'clearCache': {
             title: '🧹 LIMPIAR CACHE',
             html: `
@@ -773,6 +820,80 @@ function showActionHelp(action) {
                     </div>
                 </div>
             `
+        },
+        'clearEventCache': {
+            title: '🔔 CACHE DE EVENTOS',
+            html: `
+                <div style="text-align: left;">
+                    <h5 style="color: #20c997;">¿Qué limpia?</h5>
+                    <p>Archivos cacheados relacionados con eventos y listeners en <code>bootstrap/cache/events.php</code></p>
+
+                    <h5 style="color: #28a745;">Impacto:</h5>
+                    <p><strong>🟡 Temporal</strong> - Los eventos se recompilarán en la primera ejecución</p>
+                    <p><strong>✅ Beneficio:</strong> Eventos actualizados inmediatamente</p>
+
+                    <h5 style="color: #17a2b8;">Espacio liberado:</h5>
+                    <p><strong>10-100KB</strong> (archivo pequeño pero crítico)</p>
+
+                    <h5 style="color: #ffc107;">Cuándo USARLO OBLIGATORIAMENTE:</h5>
+                    <ul>
+                        <li>Después de agregar nuevos eventos</li>
+                        <li>Después de cambiar listeners existentes</li>
+                        <li>Si los eventos no se disparan correctamente</li>
+                        <li>Error: "Event listener not found"</li>
+                    </ul>
+
+                    <h5 style="color: #0dcaf0;">Qué eventos afecta:</h5>
+                    <ul>
+                        <li>Notificaciones por email</li>
+                        <li>Registros de actividad</li>
+                        <li>Procesos automáticos</li>
+                        <li>Webhooks y callbacks</li>
+                    </ul>
+
+                    <div class="alert alert-info mt-3">
+                        <strong>💡 Importante:</strong> Los eventos se recompilan automáticamente después de esta acción.
+                    </div>
+                </div>
+            `
+        },
+        'clearPackageCache': {
+            title: '📦 CACHE DE PAQUETES',
+            html: `
+                <div style="text-align: left;">
+                    <h5 style="color: #fd7e14;">¿Qué elimina?</h5>
+                    <p>Cache de Composer en <code>vendor/composer/</code> y archivos relacionados</p>
+
+                    <h5 style="color: #28a745;">Impacto:</h5>
+                    <p><strong>🟡 Temporal</strong> - La próxima instalación de paquetes será más lenta</p>
+                    <p><strong>✅ Beneficio:</strong> Paquetes actualizados correctamente</p>
+
+                    <h5 style="color: #17a2b8;">Espacio liberado:</h5>
+                    <p><strong>100MB-1GB</strong> (dependiendo de los paquetes instalados)</p>
+
+                    <h5 style="color: #ffc107;">Cuándo USARLO OBLIGATORIAMENTE:</h5>
+                    <ul>
+                        <li>Después de instalar/remover paquetes</li>
+                        <li>Si los paquetes no se actualizan</li>
+                        <li>Error: "Package version mismatch"</li>
+                        <li>Antes de deploy en producción</li>
+                    </ul>
+
+                    <h5 style="color: #dc3545;">⚠️ Advertencia:</h5>
+                    <p>Esta acción forzará a Composer a descargar todos los paquetes nuevamente en la próxima instalación/actualización</p>
+
+                    <h5 style="color: #0dcaf0;">Beneficios:</h5>
+                    <ul>
+                        <li>Resuelve conflictos de dependencias</li>
+                        <li>Elimina versiones corruptas de paquetes</li>
+                        <li>Garantiza instalaciones limpias</li>
+                    </ul>
+
+                    <div class="alert alert-warning mt-3">
+                        <strong>⏱️ Nota:</strong> La próxima vez que ejecutes <code>composer install</code> tomará más tiempo.
+                    </div>
+                </div>
+            `
         }
     };
 
@@ -820,7 +941,6 @@ function showSystemInfoHelp() {
                 </ul>
 
                 <h5 style="color: #dc3545;">🚨 ALERTAS CRÍTICAS:</h5>
-                <ul>
                     <li><strong>Debug en producción:</strong> ¡Riesgo de seguridad!</li>
                     <li><strong>Sin permisos de escritura:</strong> El sistema no funcionará</li>
                     <li><strong>PHP versión muy vieja:</strong> Vulnerabilidades de seguridad</li>

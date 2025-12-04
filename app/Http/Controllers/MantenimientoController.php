@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -54,7 +55,7 @@ class MantenimientoController extends Controller
         try {
             // Para Laravel 8+
             Artisan::call('optimize:clear');
-            
+
             // Si es Laravel 10+, también optimizar
             if (version_compare(app()->version(), '10.0', '>=')) {
                 Artisan::call('optimize');
@@ -85,7 +86,7 @@ class MantenimientoController extends Controller
 
             if (File::exists($logPath)) {
                 $files = File::files($logPath);
-                
+
                 foreach ($files as $file) {
                     if ($file->getExtension() === 'log') {
                         File::put($file->getPathname(), '');
@@ -96,7 +97,7 @@ class MantenimientoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $deletedCount > 0 
+                'message' => $deletedCount > 0
                     ? "✅ Logs vaciados exitosamente. ($deletedCount archivos)"
                     : "✅ No se encontraron archivos de log.",
                 'output' => "Archivos vaciados: $deletedCount"
@@ -141,12 +142,35 @@ class MantenimientoController extends Controller
     public function clearSessions(Request $request)
     {
         try {
-            Artisan::call('session:clear');
+            $sessionPath = storage_path('framework/sessions');
+            $deletedCount = 0;
+
+            if (File::exists($sessionPath) && is_dir($sessionPath)) {
+                // Obtener todos los archivos de sesión
+                $files = scandir($sessionPath);
+
+                foreach ($files as $file) {
+                    if ($file != '.' && $file != '..' && $file != '.gitignore') {
+                        $filePath = $sessionPath . '/' . $file;
+                        if (is_file($filePath)) {
+                            unlink($filePath);
+                            $deletedCount++;
+                        }
+                    }
+                }
+            }
+
+            // También limpiar sesión actual si existe
+            if (Session::isStarted()) {
+                Session::flush();
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => '✅ Sesiones limpiadas exitosamente.',
-                'output' => 'Todas las sesiones han sido eliminadas.'
+                'message' => $deletedCount > 0
+                    ? "✅ Sesiones limpiadas exitosamente. ($deletedCount archivos)"
+                    : "✅ No se encontraron archivos de sesión.",
+                'output' => "Archivos de sesión eliminados: $deletedCount"
             ]);
 
         } catch (\Exception $e) {
@@ -165,19 +189,28 @@ class MantenimientoController extends Controller
         try {
             Artisan::call('view:clear');
 
-            // También limpiar directorio de vistas compiladas
+            // También limpiar directorio de vistas compiladas manualmente
             $compiledPath = storage_path('framework/views');
+            $deletedCount = 0;
+
             if (File::exists($compiledPath)) {
-                $files = File::allFiles($compiledPath);
+                $files = scandir($compiledPath);
+
                 foreach ($files as $file) {
-                    File::delete($file);
+                    if ($file != '.' && $file != '..') {
+                        $filePath = $compiledPath . '/' . $file;
+                        if (is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
+                            unlink($filePath);
+                            $deletedCount++;
+                        }
+                    }
                 }
             }
 
             return response()->json([
                 'success' => true,
                 'message' => '✅ Vistas compiladas limpiadas.',
-                'output' => 'Vistas Blade compiladas eliminadas.'
+                'output' => "Vistas Blade compiladas eliminadas: $deletedCount"
             ]);
 
         } catch (\Exception $e) {
@@ -230,36 +263,101 @@ class MantenimientoController extends Controller
     public function fullMaintenance(Request $request)
     {
         try {
+            $output = [];
             $actions = [];
-            
+
             // 1. Limpiar cache
             Artisan::call('cache:clear');
+            $output[] = Artisan::output();
             $actions[] = 'Cache limpiado';
-            
+
             // 2. Limpiar config
             Artisan::call('config:clear');
+            $output[] = Artisan::output();
             $actions[] = 'Configuración limpiada';
-            
+
             // 3. Limpiar vistas
             Artisan::call('view:clear');
+            $output[] = Artisan::output();
             $actions[] = 'Vistas limpiadas';
-            
+
             // 4. Limpiar rutas
             Artisan::call('route:clear');
+            $output[] = Artisan::output();
             $actions[] = 'Rutas limpiadas';
-            
+
             // 5. Optimizar
             Artisan::call('optimize:clear');
+            $output[] = Artisan::output();
             $actions[] = 'Optimización completada';
-            
-            // 6. Limpiar sesiones
-            Artisan::call('session:clear');
-            $actions[] = 'Sesiones limpiadas';
+
+            // 6. Limpiar sesiones MANUALMENTE (sin comando session:clear)
+            $sessionPath = storage_path('framework/sessions');
+            $sessionCount = 0;
+
+            if (File::exists($sessionPath) && is_dir($sessionPath)) {
+                $files = scandir($sessionPath);
+
+                foreach ($files as $file) {
+                    if ($file != '.' && $file != '..' && $file != '.gitignore') {
+                        $filePath = $sessionPath . '/' . $file;
+                        if (is_file($filePath)) {
+                            unlink($filePath);
+                            $sessionCount++;
+                        }
+                    }
+                }
+
+                if ($sessionCount > 0) {
+                    $actions[] = "Sesiones limpiadas ($sessionCount archivos)";
+                    $output[] = "✅ Sesiones limpiadas: $sessionCount archivos eliminados";
+                } else {
+                    $actions[] = "No se encontraron sesiones para limpiar";
+                    $output[] = "ℹ️ No se encontraron archivos de sesión";
+                }
+            }
+
+            // 7. Limpiar logs
+            $logPath = storage_path('logs');
+            $logCount = 0;
+
+            if (File::exists($logPath)) {
+                $files = File::files($logPath);
+                foreach ($files as $file) {
+                    if ($file->getExtension() === 'log') {
+                        File::put($file->getPathname(), '');
+                        $logCount++;
+                    }
+                }
+
+                if ($logCount > 0) {
+                    $actions[] = "Logs vaciados ($logCount archivos)";
+                    $output[] = "✅ Logs vaciados: $logCount archivos";
+                }
+            }
+
+            // 8. Limpiar cache de imágenes (si existe)
+            $imageCachePath = public_path('cache');
+            $imageCount = 0;
+
+            if (File::exists($imageCachePath)) {
+                $files = File::allFiles($imageCachePath);
+                foreach ($files as $file) {
+                    File::delete($file);
+                    $imageCount++;
+                }
+
+                if ($imageCount > 0) {
+                    $actions[] = "Cache de imágenes limpiado ($imageCount archivos)";
+                    $output[] = "✅ Cache de imágenes limpiado: $imageCount archivos";
+                }
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => '✅ Mantenimiento completo ejecutado.',
-                'output' => implode(' | ', $actions)
+                'output' => implode("\n", $output),
+                'details' => $actions
             ]);
 
         } catch (\Exception $e) {
@@ -289,7 +387,7 @@ class MantenimientoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $deletedCount > 0 
+                'message' => $deletedCount > 0
                     ? "✅ Cache de imágenes limpiado. ($deletedCount archivos)"
                     : "✅ No se encontraron archivos en cache de imágenes.",
                 'output' => "Archivos eliminados: $deletedCount"
