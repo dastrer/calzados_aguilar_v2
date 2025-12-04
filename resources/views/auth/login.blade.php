@@ -59,41 +59,47 @@
     .login-header {
         background: linear-gradient(135deg, var(--aguilar-primary), #2C2C2C);
         color: #FFFFFF;
-        padding: 1rem 1.5rem; /* Reducido de 2rem a 1rem */
+        padding: 1rem 1.5rem;
         text-align: center;
     }
 
     .login-header h3 {
         font-weight: 700;
         margin-bottom: 0.5rem;
+        font-size: 1.4rem;
     }
 
     .login-header small {
         color: var(--aguilar-accent);
-        font-size: 0.95rem;
+        font-size: 0.85rem;
     }
 
     .logo-preview {
-        max-height: 250px;
+        max-height: 200px;
         width: auto;
-        margin-top: 0.5rem; /* Añadido para reducir espacio superior */
-        margin-bottom: 0.5rem; /* Reducido de 1rem a 0.5rem */
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
     }
 
     .card-body {
-        padding: 2rem;
+        padding: 1.5rem 2rem;
         background-color: var(--aguilar-light);
     }
 
     .form-control {
         border-radius: 8px;
         border: 1px solid #CCC;
-        padding: 0.9rem 1rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
     }
 
-    .form-control:focus {
-        border-color: var(--aguilar-accent);
-        box-shadow: 0 0 0 0.2rem rgba(191, 174, 128, 0.25);
+    .form-floating {
+        margin-bottom: 0.75rem;
+    }
+
+    .form-floating > label {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
     }
 
     .btn-aguilar {
@@ -101,9 +107,11 @@
         color: #FFFFFF;
         font-weight: 600;
         border-radius: 8px;
-        padding: 0.75rem 1.5rem;
+        padding: 0.65rem 1.5rem;
         transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(26, 43, 76, 0.3);
+        font-size: 0.95rem;
+        border: none;
     }
 
     .btn-aguilar:hover {
@@ -112,17 +120,46 @@
         box-shadow: 0 6px 18px rgba(191, 174, 128, 0.4);
     }
 
+    /* Botón "Volver atrás" con diseño Aguilar */
+    .btn-aguilar-outline {
+        background-color: transparent;
+        color: var(--aguilar-primary);
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.65rem 1.5rem;
+        transition: all 0.3s ease;
+        border: 2px solid var(--aguilar-primary);
+        font-size: 0.95rem;
+    }
+
+    .btn-aguilar-outline:hover {
+        background-color: var(--aguilar-primary);
+        color: #FFFFFF;
+        border-color: var(--aguilar-primary);
+    }
+
     .alert-danger {
         background-color: rgba(231, 76, 60, 0.1);
         border: 1px solid rgba(231, 76, 60, 0.3);
         color: #c0392b;
         border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .d-grid.mt-4 {
+        margin-top: 1.5rem !important;
+    }
+
+    .d-grid.mt-3 {
+        margin-top: 1rem !important; /* Reducido para mantener la altura compacta */
     }
 
     footer {
         background-color: #F0F0F0;
-        font-size: 0.85rem;
-        padding: 1rem;
+        font-size: 0.8rem;
+        padding: 0.75rem 1rem;
         text-align: center;
     }
 
@@ -173,6 +210,14 @@
                     <button class="btn btn-aguilar" type="submit">Iniciar sesión</button>
                 </div>
             </form>
+
+            <!-- Botón para volver atrás con icono -->
+            <div class="d-grid mt-3">
+                <a href="{{ route('panel') }}" class="btn btn-aguilar-outline d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver atrás
+                </a>
+            </div>
         </div>
         <footer>
             &copy; Calzados Aguilar {{ date('Y') }} &middot;
