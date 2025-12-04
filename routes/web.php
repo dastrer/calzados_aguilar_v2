@@ -24,7 +24,8 @@ use App\Http\Controllers\proveedorController;
 use App\Http\Controllers\roleController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\ventaController;
-use App\Http\Controllers\BackupController; // ← AÑADE ESTA LÍNEA
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\MantenimientoController; // ← AÑADE ESTA LÍNEA
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -115,18 +116,41 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::prefix('backups')->group(function () {
         // Listar todos los backups
         Route::get('/', [BackupController::class, 'index'])->name('backups.index');
-
+        
         // Crear nuevo backup
         Route::post('/create', [BackupController::class, 'create'])->name('backups.create');
-
+        
         // Descargar backup
         Route::get('/download/{filename}', [BackupController::class, 'download'])->name('backups.download');
-
+        
         // Restaurar backup (con confirmación)
         Route::post('/restore/{filename}', [BackupController::class, 'restore'])->name('backups.restore');
-
+        
         // Eliminar backup
         Route::delete('/delete/{filename}', [BackupController::class, 'destroy'])->name('backups.delete');
+    });
+    // =================================================================
+
+    // =================================================================
+    // 🔧 RUTAS DE MANTENIMIENTO DEL SISTEMA (PROTEGIDAS POR AUTENTICACIÓN)
+    // =================================================================
+    Route::prefix('mantenimiento')->group(function () {
+        // Vista principal
+        Route::get('/', [MantenimientoController::class, 'index'])->name('mantenimiento.index');
+        
+        // Acciones de mantenimiento
+        Route::post('/clear-cache', [MantenimientoController::class, 'clearCache'])->name('mantenimiento.clearCache');
+        Route::post('/optimize', [MantenimientoController::class, 'optimize'])->name('mantenimiento.optimize');
+        Route::post('/clear-logs', [MantenimientoController::class, 'clearLogs'])->name('mantenimiento.clearLogs');
+        Route::post('/clear-autoload', [MantenimientoController::class, 'clearAutoload'])->name('mantenimiento.clearAutoload');
+        Route::post('/clear-sessions', [MantenimientoController::class, 'clearSessions'])->name('mantenimiento.clearSessions');
+        Route::post('/clear-compiled-views', [MantenimientoController::class, 'clearCompiledViews'])->name('mantenimiento.clearCompiledViews');
+        Route::get('/system-status', [MantenimientoController::class, 'systemStatus'])->name('mantenimiento.systemStatus');
+        Route::post('/full-maintenance', [MantenimientoController::class, 'fullMaintenance'])->name('mantenimiento.fullMaintenance');
+        Route::post('/clear-image-cache', [MantenimientoController::class, 'clearImageCache'])->name('mantenimiento.clearImageCache');
+        Route::post('/clear-event-cache', [MantenimientoController::class, 'clearEventCache'])->name('mantenimiento.clearEventCache');
+        Route::post('/clear-package-cache', [MantenimientoController::class, 'clearPackageCache'])->name('mantenimiento.clearPackageCache');
+        Route::post('/clear-service-cache', [MantenimientoController::class, 'clearServiceCache'])->name('mantenimiento.clearServiceCache');
     });
     // =================================================================
 

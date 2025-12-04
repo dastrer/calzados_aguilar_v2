@@ -142,10 +142,19 @@
                 @can('crear-user')
                 <x-nav.heading>Herramientas</x-nav.heading>
 
+
                 <x-nav.nav-link content='Backups'
                     icon='fas fa-database'
                     :href="route('backups.index')" />
+
+
+                <x-nav.nav-link content='Mantenimiento'
+                    icon='fas fa-wrench'
+                    :href="route('mantenimiento.index')" />
+
                 @endcan
+
+
 
             </div>
         </div>
