@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
     <meta name="description" content="Sistema de información web para la gestión integral de inventarios, compras y ventas para Calzados Aguilar" />
     <meta name="author" content="Est. Juan Pablo Ramirez Aguilar - Sistemas Informáticos" />
     <title>Calzados Aguilar – Bienvenido</title>
@@ -17,6 +17,11 @@
             --aguilar-primary: #1A2B4C;
             --aguilar-accent: #BFAE80;
             --aguilar-light: #FAFAFA;
+            --aguilar-dark: #0A1429;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -43,18 +48,23 @@
         .navbar {
             z-index: 2;
             background-color: rgba(26, 43, 76, 0.85);
+            padding: 0.75rem 1rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.1rem;
         }
 
         .navbar-brand img {
-            height: 40px;
-            margin-right: 10px;
+            height: 35px;
+            margin-right: 8px;
         }
 
         .welcome-content {
             z-index: 2;
             text-align: center;
             color: var(--aguilar-light);
-            padding: 6rem 2rem 3rem;
+            padding: 4rem 1rem 2rem;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -63,17 +73,20 @@
         }
 
         .welcome-content h1 {
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3.5rem);
             font-weight: 700;
             margin-bottom: 1rem;
+            line-height: 1.2;
             animation: slideDown 1s ease-out;
         }
 
         .welcome-content p {
-            font-size: 1.25rem;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
             color: var(--aguilar-accent);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             animation: slideUp 1.2s ease-out;
+            line-height: 1.5;
+            padding: 0 1rem;
         }
 
         .btn-aguilar {
@@ -81,9 +94,16 @@
             color: #FFFFFF;
             font-weight: 600;
             border-radius: 50px;
-            padding: 0.6rem 1.2rem;
+            padding: 0.75rem 1.5rem;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(26, 43, 76, 0.3);
+            border: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
         }
 
         .btn-aguilar:hover {
@@ -94,7 +114,7 @@
 
         .section {
             z-index: 2;
-            padding: 4rem 2rem;
+            padding: clamp(2rem, 5vw, 4rem) 1rem;
             background-color: rgba(0, 0, 0, 0.5);
         }
 
@@ -102,6 +122,8 @@
             color: var(--aguilar-light);
             font-weight: 700;
             margin-bottom: 2rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            line-height: 1.3;
         }
 
         .section p,
@@ -109,12 +131,21 @@
             color: var(--aguilar-accent);
         }
 
+        .section h5 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .section .lead {
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        }
+
         footer {
             z-index: 2;
             background-color: rgba(0, 0, 0, 0.5);
             color: var(--aguilar-light);
             text-align: center;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             font-size: 0.9rem;
         }
 
@@ -133,23 +164,26 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Sección del Catálogo - RESPONSIVE */
+        /* Sección del Catálogo */
         .catalog-section {
             background: rgba(26, 43, 76, 0.7);
             border-radius: 15px;
-            padding: 3rem;
-            margin: 2rem auto;
+            padding: clamp(1.5rem, 3vw, 3rem);
+            margin: clamp(1rem, 3vw, 2rem) auto;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(191, 174, 128, 0.3);
+            max-width: 1400px;
         }
 
         .product-preview-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
             height: 100%;
             transition: all 0.3s ease;
             border: 1px solid rgba(191, 174, 128, 0.2);
+            display: flex;
+            flex-direction: column;
         }
 
         .product-preview-card:hover {
@@ -160,15 +194,16 @@
 
         .product-preview-image {
             width: 100%;
-            height: 180px;
+            height: clamp(120px, 25vw, 220px);
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 1rem;
             border: 2px solid rgba(191, 174, 128, 0.2);
+            aspect-ratio: 4/3;
         }
 
         .product-preview-price {
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2vw, 1.4rem);
             font-weight: bold;
             color: #28a745;
             margin: 0.5rem 0;
@@ -178,16 +213,23 @@
             background: linear-gradient(135deg, var(--aguilar-primary), #2c3e50);
             border: none;
             color: white;
-            padding: 0.8rem 1.5rem;
+            padding: clamp(0.7rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 2rem);
             border-radius: 8px;
             font-weight: 600;
             transition: all 0.3s ease;
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
         }
 
         .btn-view-catalog:hover {
             background: linear-gradient(135deg, var(--aguilar-accent), #D4AF37);
             color: var(--aguilar-primary);
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(191, 174, 128, 0.3);
         }
 
         .loading-catalog {
@@ -196,79 +238,130 @@
             color: var(--aguilar-accent);
         }
 
-        /* Media Queries para Responsividad - SOLO CATÁLOGO */
-        @media (max-width: 1200px) {
+        /* Grid responsivo */
+        .row.g-4 {
+            --bs-gutter-x: 1rem;
+            --bs-gutter-y: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .row.g-4 {
+                --bs-gutter-x: 0.75rem;
+                --bs-gutter-y: 0.75rem;
+            }
+        }
+
+        /* Tarjetas de beneficios */
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            border: 1px solid rgba(191, 174, 128, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(191, 174, 128, 0.3);
+        }
+
+        /* Media Queries completas */
+        @media (max-width: 1400px) {
             .catalog-section {
-                padding: 2.5rem;
+                margin: 1.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .welcome-content {
+                padding: 3.5rem 1rem 2rem;
             }
 
-            .product-preview-image {
-                height: 160px;
+            .section {
+                padding: 3rem 1rem;
             }
         }
 
         @media (max-width: 992px) {
-            .catalog-section {
-                padding: 2rem;
-                margin: 1.5rem auto;
+            .navbar {
+                padding: 0.5rem 0.75rem;
             }
 
-            .product-preview-card {
+            .navbar-brand img {
+                height: 30px;
+            }
+
+            .welcome-content {
+                padding: 3rem 1rem 1.5rem;
+            }
+
+            .benefit-card {
                 padding: 1.25rem;
-            }
-
-            .product-preview-image {
-                height: 150px;
-            }
-
-            .product-preview-price {
-                font-size: 1.2rem;
             }
         }
 
         @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+            }
+
+            .navbar-brand span {
+                font-size: 1rem;
+            }
+
+            .welcome-content {
+                padding: 2.5rem 0.5rem 1rem;
+            }
+
+            .section {
+                padding: 2rem 0.5rem;
+            }
+
             .catalog-section {
-                padding: 1.5rem;
-                margin: 1rem auto;
+                padding: 1.25rem;
+                margin: 0.75rem 0.5rem;
                 border-radius: 12px;
-            }
-
-            .product-preview-card {
-                padding: 1rem;
-            }
-
-            .product-preview-image {
-                height: 140px;
-            }
-
-            .product-preview-price {
-                font-size: 1.1rem;
-            }
-
-            .btn-view-catalog {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.95rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .catalog-section {
-                padding: 1rem;
-                margin: 0.75rem auto;
             }
 
             .product-preview-card {
                 padding: 0.75rem;
             }
 
-            .product-preview-image {
-                height: 120px;
-                margin-bottom: 0.75rem;
+            .btn-aguilar,
+            .btn-view-catalog {
+                min-height: 44px;
+                padding: 0.6rem 1.2rem;
             }
 
-            .product-preview-price {
+            footer {
+                padding: 1rem 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-brand {
                 font-size: 1rem;
-                margin: 0.4rem 0;
+            }
+
+            .navbar-brand img {
+                height: 25px;
+                margin-right: 5px;
+            }
+
+            .welcome-content h1 {
+                margin-bottom: 0.75rem;
+                padding: 0 0.5rem;
+            }
+
+            .welcome-content p {
+                padding: 0;
+            }
+
+            .catalog-section {
+                padding: 1rem;
+                margin: 0.5rem;
             }
 
             .product-preview-card h6 {
@@ -276,17 +369,35 @@
                 min-height: 40px;
             }
 
-            .btn-view-catalog {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
+            .product-preview-card small {
+                font-size: 0.8rem;
             }
 
             #productCountText {
                 font-size: 0.85rem;
             }
+
+            .section h5 {
+                font-size: 1.1rem;
+            }
+
+            .section p {
+                font-size: 0.95rem;
+            }
         }
 
         @media (max-width: 375px) {
+            .navbar-brand span {
+                font-size: 0.9rem;
+            }
+
+            .btn-aguilar,
+            .btn-view-catalog {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+                min-height: 40px;
+            }
+
             .product-preview-image {
                 height: 100px;
             }
@@ -296,9 +407,105 @@
                 min-height: 35px;
             }
 
-            .product-preview-card small {
+            footer {
                 font-size: 0.8rem;
             }
+        }
+
+        @media (max-width: 320px) {
+            .welcome-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .navbar-brand {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar-brand img {
+                margin-bottom: 2px;
+            }
+
+            .btn-aguilar,
+            .btn-view-catalog {
+                width: 100%;
+                max-width: 200px;
+                margin: 0 auto;
+            }
+        }
+
+        /* Mejoras para tablets en orientación vertical */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .welcome-content {
+                padding: 5rem 2rem 3rem;
+            }
+
+            .product-preview-image {
+                height: 180px;
+            }
+        }
+
+        /* Mejoras para dispositivos con altura limitada */
+        @media (max-height: 600px) {
+            .welcome-content {
+                padding-top: 2rem;
+                padding-bottom: 1rem;
+            }
+
+            .section {
+                padding-top: 1.5rem;
+                padding-bottom: 1.5rem;
+            }
+        }
+
+        /* Optimización para impresión */
+        @media print {
+            .overlay,
+            .navbar,
+            .btn-aguilar,
+            .btn-view-catalog,
+            footer {
+                display: none;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .section {
+                background: white !important;
+                color: black !important;
+                border: 1px solid #ddd;
+            }
+        }
+
+        /* Soporte para modo oscuro del sistema */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --aguilar-light: #FAFAFA;
+                --aguilar-dark: #0A1429;
+            }
+        }
+
+        /* Prevenir desbordamiento de texto */
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Mejoras de accesibilidad */
+        .btn-aguilar:focus,
+        .btn-view-catalog:focus {
+            outline: 2px solid var(--aguilar-accent);
+            outline-offset: 2px;
+        }
+
+        /* Optimización de imágenes */
+        .product-preview-image {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
@@ -307,7 +514,7 @@
     <div class="overlay"></div>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-md px-4">
+    <nav class="navbar navbar-expand-md px-3 px-md-4">
         <a class="navbar-brand d-flex align-items-center" href="{{ route('panel') }}">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Calzados Aguilar">
             <span class="text-light fw-semibold">Calzados Aguilar</span>
@@ -323,7 +530,7 @@
     <div class="welcome-content container">
         <h1>Sistema de gestión integral</h1>
         <p>Donde cada paso cuenta. Gestión inteligente para tu negocio de calzados.</p>
-        <a href="{{ route('login.index') }}" class="btn btn-aguilar d-inline-flex align-items-center gap-2">
+        <a href="{{ route('login.index') }}" class="btn btn-aguilar d-inline-flex align-items-center gap-2 mx-auto">
             <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
         </a>
     </div>
@@ -358,19 +565,19 @@
         <h2>¿Por qué elegir nuestro sistema?</h2>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="p-3 border rounded bg-dark bg-opacity-50">
+                <div class="benefit-card">
                     <h5>Inventario en tiempo real</h5>
                     <p>Controla existencias, movimientos y alertas de stock desde cualquier dispositivo.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="p-3 border rounded bg-dark bg-opacity-50">
+                <div class="benefit-card">
                     <h5>Reportes dinámicos</h5>
                     <p>Visualiza ventas, compras y tendencias con gráficos y filtros personalizados.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="p-3 border rounded bg-dark bg-opacity-50">
+                <div class="benefit-card">
                     <h5>Acceso 24/7</h5>
                     <p>Tu negocio siempre disponible, desde cualquier lugar y dispositivo.</p>
                 </div>
@@ -428,13 +635,13 @@
                         let html = '';
                         data.productos.forEach(producto => {
                             html += `
-                                <div class="col-lg-3 col-md-6">
+                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12">
                                     <div class="product-preview-card">
                                         <img src="${producto.img_path}"
                                              alt="${producto.nombre}"
                                              class="product-preview-image"
                                              onerror="this.src='{{ asset('assets/img/calzado-default.png') }}'">
-                                        <h6 class="text-light" style="min-height: 50px;">${producto.nombre.substring(0, 40)}${producto.nombre.length > 40 ? '...' : ''}</h6>
+                                        <h6 class="text-light text-truncate-2">${producto.nombre}</h6>
                                         <div class="product-preview-price">
                                             ${producto.precio_formatted}
                                         </div>

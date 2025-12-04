@@ -577,40 +577,39 @@ function showUsageGuide() {
 // Mostrar ayuda específica para cada acción
 function showActionHelp(action) {
     const helpMessages = {
-        // En la parte de helpMessages, actualiza el fullMaintenance:
-'fullMaintenance': {
-    title: '⚙️ MANTENIMIENTO COMPLETO',
-    html: `
-        <div style="text-align: left;">
-            <h5 style="color: #dc3545;">¿Qué hace?</h5>
-            <p>Ejecuta <strong>todas las tareas de mantenimiento</strong> en secuencia automáticamente.</p>
+        'fullMaintenance': {
+            title: '⚙️ MANTENIMIENTO COMPLETO',
+            html: `
+                <div style="text-align: left;">
+                    <h5 style="color: #dc3545;">¿Qué hace?</h5>
+                    <p>Ejecuta <strong>todas las tareas de mantenimiento</strong> en secuencia automáticamente.</p>
 
-            <h5 style="color: #ffc107;">Tareas que ejecuta:</h5>
-            <ul>
-                <li>cache:clear - Limpia cache de aplicación</li>
-                <li>config:clear - Limpia configuración</li>
-                <li>view:clear - Limpia vistas Blade</li>
-                <li>route:clear - Limpia rutas</li>
-                <li>optimize:clear - Optimización general</li>
-                <li>Limpia archivos de sesión manualmente</li>
-                <li>Vacía archivos de logs</li>
-                <li>Limpia cache de imágenes</li>
-                <li>Limpia vistas compiladas</li>
-            </ul>
+                    <h5 style="color: #ffc107;">Tareas que ejecuta:</h5>
+                    <ul>
+                        <li>cache:clear - Limpia cache de aplicación</li>
+                        <li>config:clear - Limpia configuración</li>
+                        <li>view:clear - Limpia vistas Blade</li>
+                        <li>route:clear - Limpia rutas</li>
+                        <li>optimize:clear - Optimización general</li>
+                        <li>Limpia archivos de sesión manualmente</li>
+                        <li>Vacía archivos de logs</li>
+                        <li>Limpia cache de imágenes</li>
+                        <li>Limpia vistas compiladas</li>
+                    </ul>
 
-            <h5 style="color: #28a745;">Impacto:</h5>
-            <p><strong>🟡 Temporal</strong> - El sistema puede ser más lento por 10-30 segundos</p>
-            <p><strong>✅ Beneficio:</strong> Sistema completamente optimizado</p>
+                    <h5 style="color: #28a745;">Impacto:</h5>
+                    <p><strong>🟡 Temporal</strong> - El sistema puede ser más lento por 10-30 segundos</p>
+                    <p><strong>✅ Beneficio:</strong> Sistema completamente optimizado</p>
 
-            <h5 style="color: #17a2b8;">Frecuencia recomendada:</h5>
-            <p><strong>📅 Mensualmente</strong> o cuando notes el sistema lento</p>
+                    <h5 style="color: #17a2b8;">Frecuencia recomendada:</h5>
+                    <p><strong>📅 Mensualmente</strong> o cuando notes el sistema lento</p>
 
-            <div class="alert alert-warning mt-3">
-                <strong>⚠️ Advertencia:</strong> Usuarios activos serán desconectados temporalmente.
-            </div>
-        </div>
-    `
-},
+                    <div class="alert alert-warning mt-3">
+                        <strong>⚠️ Advertencia:</strong> Usuarios activos serán desconectados temporalmente.
+                    </div>
+                </div>
+            `
+        },
         'clearCache': {
             title: '🧹 LIMPIAR CACHE',
             html: `
@@ -971,7 +970,7 @@ function showSystemInfoHelp() {
 }
 
 // ============================================
-// FUNCIONES ORIGINALES DEL SISTEMA
+// FUNCIONES ORIGINALES DEL SISTEMA - MODIFICADAS
 // ============================================
 
 // Función para obtener estado del sistema
@@ -1011,18 +1010,8 @@ function executeAction(action) {
     const spinner = document.getElementById(action + 'Spinner');
     const button = event.target.closest('.btn-action');
 
-    // Mostrar spinner y deshabilitar botón
-    if (spinner) spinner.style.display = 'inline-block';
-    if (button) button.disabled = true;
-
-    // Confirmación para acciones importantes
-    if (action === 'fullMaintenance' || action === 'clearLogs') {
-        if (!confirm('¿Estás seguro de ejecutar esta acción? Esto puede tomar varios segundos.')) {
-            if (spinner) spinner.style.display = 'none';
-            if (button) button.disabled = false;
-            return;
-        }
-    }
+    // Mostrar spinner y deshabilitar botón (se hará después de la confirmación)
+    if (!spinner || !button) return;
 
     // Verificar que la ruta existe
     if (!actionRoutes[action]) {
@@ -1032,63 +1021,172 @@ function executeAction(action) {
             text: `La ruta para la acción "${action}" no está definida.`,
             confirmButtonColor: '#d33'
         });
-        if (spinner) spinner.style.display = 'none';
-        if (button) button.disabled = false;
         return;
     }
 
-    // Ejecutar la acción
-    fetch(actionRoutes[action], {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    // Mensajes personalizados para cada acción crítica
+    const warningMessages = {
+        'fullMaintenance': {
+            title: '⚠️ MANTENIMIENTO COMPLETO',
+            html: `
+                <div style="text-align: left;">
+                    <h5 style="color: #dc3545;">Acción Crítica</h5>
+                    <p>Esta acción ejecutará <strong>TODAS las tareas de mantenimiento</strong> en secuencia:</p>
+                    <ul>
+                        <li>Limpieza de cache, config, vistas y rutas</li>
+                        <li>Optimización del sistema</li>
+                        <li>Limpieza de sesiones (todos los usuarios serán desconectados)</li>
+                        <li>Vaciado de logs</li>
+                        <li>Limpieza de cache de imágenes</li>
+                    </ul>
+                    <p style="color: #fd7e14;"><strong>⏱️ Tiempo estimado:</strong> 10-30 segundos</p>
+                    <div class="alert alert-danger mt-3">
+                        <strong>🚨 ADVERTENCIA:</strong> El sistema estará más lento durante el proceso.
+                    </div>
+                </div>
+            `,
+            confirmButtonText: 'Ejecutar Mantenimiento Completo',
+            cancelButtonText: 'Cancelar'
+        },
+        'clearLogs': {
+            title: '📄 VACIAR LOGS',
+            html: `
+                <div style="text-align: left;">
+                    <h5 style="color: #fd7e14;">Confirmar acción</h5>
+                    <p>Se vaciarán todos los archivos .log del sistema:</p>
+                    <ul>
+                        <li>Se perderá el historial de errores</li>
+                        <li>Los archivos se dejarán en 0 bytes (no se eliminan)</li>
+                        <li>Se liberará espacio en disco</li>
+                    </ul>
+                    <p><strong>¿Desea continuar?</strong></p>
+                </div>
+            `,
+            confirmButtonText: 'Sí, vaciar logs',
+            cancelButtonText: 'Cancelar'
+        },
+        'clearSessions': {
+            title: '👥 LIMPIAR SESIONES',
+            html: `
+                <div style="text-align: left;">
+                    <h5 style="color: #dc3545;">⚠️ ACCIÓN CRÍTICA</h5>
+                    <p><strong>Todos los usuarios serán desconectados inmediatamente</strong> incluyendo:</p>
+                    <ul>
+                        <li>Carritos de compra en progreso</li>
+                        <li>Formularios parcialmente completados</li>
+                        <li>Preferencias temporales de sesión</li>
+                    </ul>
+                    <div class="alert alert-danger mt-3">
+                        <strong>Recomendación:</strong> Ejecutar fuera de horario laboral
+                    </div>
+                    <p><strong>¿Desea continuar?</strong></p>
+                </div>
+            `,
+            confirmButtonText: 'Sí, limpiar sesiones',
+            cancelButtonText: 'Cancelar'
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Ocultar spinner y habilitar botón
-        if (spinner) spinner.style.display = 'none';
-        if (button) button.disabled = false;
+    };
 
-        // Mostrar resultado en SweetAlert2
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: data.message,
-                timer: 3000,
-                showConfirmButton: false
-            });
+    // Función para ejecutar la acción después de la confirmación
+    const executeConfirmedAction = () => {
+        // Mostrar spinner y deshabilitar botón
+        spinner.style.display = 'inline-block';
+        button.disabled = true;
 
-            // Agregar al registro
-            addToLog(data.message, data.output || '');
-        } else {
+        // Ejecutar la acción
+        fetch(actionRoutes[action], {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Ocultar spinner y habilitar botón
+            spinner.style.display = 'none';
+            button.disabled = false;
+
+            // Mostrar resultado en SweetAlert2
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ ¡Éxito!',
+                    text: data.message,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+
+                // Agregar al registro
+                addToLog(data.message, data.output || '');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '❌ Error',
+                    text: data.message,
+                    confirmButtonColor: '#d33'
+                });
+
+                // Agregar error al registro
+                addToLog(data.message, 'Error', 'error');
+            }
+        })
+        .catch(error => {
+            // Ocultar spinner y habilitar botón
+            spinner.style.display = 'none';
+            button.disabled = false;
+
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: data.message,
+                title: '❌ Error de conexión',
+                text: 'No se pudo completar la acción. Verifica tu conexión.',
                 confirmButtonColor: '#d33'
             });
 
-            // Agregar error al registro
-            addToLog(data.message, 'Error', 'error');
-        }
-    })
-    .catch(error => {
-        // Ocultar spinner y habilitar botón
-        if (spinner) spinner.style.display = 'none';
-        if (button) button.disabled = false;
+            addToLog('Error de conexión', error.toString(), 'error');
+        });
+    };
+
+    // Mostrar confirmación para acciones importantes
+    if (warningMessages[action]) {
+        const warning = warningMessages[action];
 
         Swal.fire({
-            icon: 'error',
-            title: 'Error de conexión',
-            text: 'No se pudo completar la acción. Verifica tu conexión.',
-            confirmButtonColor: '#d33'
+            title: warning.title,
+            html: warning.html,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: action === 'fullMaintenance' ? '#dc3545' :
+                               action === 'clearLogs' ? '#fd7e14' :
+                               action === 'clearSessions' ? '#dc3545' : '#3085d6',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: warning.confirmButtonText,
+            cancelButtonText: warning.cancelButtonText,
+            width: 600,
+            backdrop: true,
+            allowOutsideClick: false,
+            allowEscapeKey: true,
+            allowEnterKey: false,
+            showCloseButton: true,
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                executeConfirmedAction();
+            } else {
+                // Usuario canceló
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Acción cancelada',
+                    text: 'La operación ha sido cancelada por el usuario.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
         });
-
-        addToLog('Error de conexión', error.toString(), 'error');
-    });
+    } else {
+        // Para acciones normales, ejecutar directamente
+        executeConfirmedAction();
+    }
 }
 
 // Función para agregar al registro
