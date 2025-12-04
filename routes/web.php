@@ -24,6 +24,7 @@ use App\Http\Controllers\proveedorController;
 use App\Http\Controllers\roleController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\ventaController;
+use App\Http\Controllers\BackupController; // ← AÑADE ESTA LÍNEA
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,7 @@ Route::get('/catalogo', [ProductoController::class, 'catalogo'])->name('catalogo
 
 // RUTAS QUE REQUIEREN AUTENTICACIÓN (GRUPO ORIGINAL - SIN CAMBIOS)
 Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
+    // ... tus rutas existentes ...
     Route::resource('categorias', categoriaController::class)->except('show');
     Route::resource('presentaciones', presentacioneController::class)->except('show');
     Route::resource('marcas', marcaController::class)->except('show');
@@ -76,7 +78,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::put('/inventario/{inventario}/reubicar', [InventarioControlller::class, 'reubicar'])
         ->name('inventario.reubicar');
 
-    //Reportes
+    // Reportes
     Route::get('/export-pdf-comprobante-venta/{id}', [ExportPDFController::class, 'exportPdfComprobanteVenta'])
         ->name('export.pdf-comprobante-venta');
 
@@ -106,6 +108,27 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
         Auth::user()->unreadNotifications->markAsRead();
         return response()->json(['success' => true]);
     })->name('notifications.markAsRead');
+
+    // =================================================================
+    // 🔐 RUTAS DE GESTIÓN DE BACKUPS (PROTEGIDAS POR AUTENTICACIÓN)
+    // =================================================================
+    Route::prefix('backups')->group(function () {
+        // Listar todos los backups
+        Route::get('/', [BackupController::class, 'index'])->name('backups.index');
+
+        // Crear nuevo backup
+        Route::post('/create', [BackupController::class, 'create'])->name('backups.create');
+
+        // Descargar backup
+        Route::get('/download/{filename}', [BackupController::class, 'download'])->name('backups.download');
+
+        // Restaurar backup (con confirmación)
+        Route::post('/restore/{filename}', [BackupController::class, 'restore'])->name('backups.restore');
+
+        // Eliminar backup
+        Route::delete('/delete/{filename}', [BackupController::class, 'destroy'])->name('backups.delete');
+    });
+    // =================================================================
 
     Route::get('/logout', [logoutController::class, 'logout'])->name('logout');
 });

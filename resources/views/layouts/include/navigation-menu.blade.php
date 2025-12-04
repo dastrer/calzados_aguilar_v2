@@ -11,6 +11,7 @@
                     :href="route('panel')" />
 
                 <!-- ENCABEZADO: ADQUISICIONES -->
+                @if(auth()->user()->canany(['ver-proveedore', 'ver-compra', 'crear-compra']))
                 <x-nav.heading>Adquisiciones</x-nav.heading>
 
                 @can('ver-proveedore')
@@ -33,8 +34,10 @@
                     @endcan
                 </x-nav.link-collapsed>
                 @endcan
+                @endif
 
                 <!-- ENCABEZADO: COMERCIALIZACION -->
+                @if(auth()->user()->canany(['ver-producto', 'ver-cliente', 'ver-caja', 'ver-venta', 'crear-venta']))
                 <x-nav.heading>Comercialización</x-nav.heading>
 
                 <!-- CATÁLOGO COMO PRIMER ÍTEM EN COMERCIALIZACIÓN -->
@@ -70,8 +73,10 @@
                     @endcan
                 </x-nav.link-collapsed>
                 @endcan
+                @endif
 
                 <!-- ENCABEZADO: PRODUCTOS E INVENTARIO -->
+                @if(auth()->user()->canany(['ver-producto', 'ver-categoria', 'ver-presentacione', 'ver-marca', 'ver-inventario', 'ver-kardex']))
                 <x-nav.heading>Productos e Inventario</x-nav.heading>
 
                 @canany(['ver-producto', 'ver-categoria', 'ver-presentacione', 'ver-marca'])
@@ -108,8 +113,10 @@
                     icon='fa-solid fa-file'
                     :href="route('kardex.index')" />
                 @endcan
+                @endif
 
                 <!-- ENCABEZADO: GESTION DE USUARIOS -->
+                @if(auth()->user()->canany(['ver-empleado', 'ver-user', 'ver-role']))
                 <x-nav.heading>Gestión de Usuarios</x-nav.heading>
 
                 @can('ver-empleado')
@@ -128,6 +135,16 @@
                 <x-nav.nav-link content='Roles'
                     icon='fa-solid fa-person-circle-plus'
                     :href="route('roles.index')" />
+                @endcan
+                @endif
+
+                <!-- ENCABEZADO: HERRAMIENTAS -->
+                @can('crear-user')
+                <x-nav.heading>Herramientas</x-nav.heading>
+
+                <x-nav.nav-link content='Backups'
+                    icon='fas fa-database'
+                    :href="route('backups.index')" />
                 @endcan
 
             </div>
